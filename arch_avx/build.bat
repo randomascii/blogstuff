@@ -1,3 +1,6 @@
+@rem This project demonstrates the concepts discussed here:
+@rem https://randomascii.wordpress.com/2016/12/05/vc-archavx-option-unsafe-at-any-speed/
+
 @setlocal
 @set path=%path%;c:\Program Files (x86)\Windows Kits\10\Debuggers\x86
 @set commonoptions=/c /nologo /Zi /Od
