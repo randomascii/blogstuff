@@ -173,6 +173,13 @@ int main(int argc, char* argv[])
 			CloseHandle(stop_checker);
 			printf("\n");
 		}
+		ULONGLONG ticks = GetTickCount64();
+		double ticks_days = ticks / (1000.0 * 86400);
+		ULONGLONG unbiased_interrupt_time = 0;
+		QueryUnbiasedInterruptTime(&unbiased_interrupt_time);
+		double interrupt_time_days = unbiased_interrupt_time / (1e7 * 86400);
+		printf("Elapsed uptime is %1.2f days.\n", ticks_days);
+		printf("Awake uptime is %1.2f days.\n", interrupt_time_days);
 	}
 
 	return 0;
