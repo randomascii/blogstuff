@@ -16,7 +16,7 @@ symsrv.yes
 
 # VS 2015 drops these
 *.VC.opendb
-/.vs/
+**/.vs/*
 
 Debug/
 Release/
@@ -25,3 +25,12 @@ ipch/
 *.cod
 *.obj
 ~*.*
+
+# Ignore NuGet Packages
+*.nupkg
+
+# Ignore the packages folder
+**/packages/*
+
+# Include packages/build/, which is used as an MSBuild target
+!**/packages/build/
