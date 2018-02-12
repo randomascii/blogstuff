@@ -26,6 +26,9 @@ handle for more than a fraction of a second is unusual, for more than a few
 seconds is almost always a bug. Some programs leak process handles and this
 wastes an estimated 64 KB per handle, which adds up if you leak tens or hundreds
 of thousands of handles.
+
+Blog post is here:
+https://randomascii.wordpress.com/2018/02/11/zombie-processes-are-eating-your-memory/
 */
 
 using NtApiDotNet;
