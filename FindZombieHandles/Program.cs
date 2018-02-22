@@ -65,6 +65,17 @@ namespace FindZombieHandles
                     else
                         return process.Result.Name;
                 }
+                else
+                {
+                    try
+                    {
+                        return Process.GetProcessById(process_id).ProcessName;
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+
                 return "Unknown";
             }
         }
