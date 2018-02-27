@@ -97,7 +97,7 @@ namespace FindZombieHandles
             {
                 if (!NtToken.EnableDebugPrivilege())
                 {
-                    Console.WriteLine("WARNING: Can't enable debug privilege. Some process names may be missing.");
+                    Console.WriteLine("WARNING: Can't enable debug privilege. Some zombies may not be found. Run as admin for full results.");
                 }
                 var zombies = GetZombieProcessObjectAddress();
                 Console.WriteLine("{0} total zombie processes.", zombies.Count);
@@ -155,6 +155,15 @@ namespace FindZombieHandles
             {
                 Console.WriteLine(ex.Message);
             }
+
+            int[] pids = new int[3];
+            if (GetConsoleProcessList(pids, 3) == 1)
+            {
+                Console.Write("Press any key to continue");
+                Console.ReadKey();
+            }
         }
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern int GetConsoleProcessList(int[] buffer, int size);
     }
 }
