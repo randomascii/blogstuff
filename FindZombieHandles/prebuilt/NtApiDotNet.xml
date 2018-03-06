@@ -286,6 +286,11 @@
             Dispose method
             </summary>
         </member>
+        <member name="T:NtApiDotNet.DisposableList">
+            <summary>
+            Implementation of disposable list which just accepts IDisposable objects.
+            </summary>
+        </member>
         <member name="T:NtApiDotNet.SafeHandleList">
             <summary>
             Disposable list of safe handles
@@ -842,6 +847,36 @@
             </summary>
             <returns>The list of entries.</returns>
             <exception cref="T:NtApiDotNet.NtException">Thrown on error</exception>
+        </member>
+        <member name="M:NtApiDotNet.NtDirectory.VisitAccessibleDirectories(System.Func{NtApiDotNet.NtDirectory,System.Boolean},NtApiDotNet.DirectoryAccessRights,System.Boolean,System.Int32)">
+            <summary>
+            Visit all accessible directories under this one.
+            </summary>
+            <param name="visitor">A function to be called on every accessible directory. Return true to continue enumeration.</param>
+            <param name="desired_access">Specify the desired access for the directory</param>
+            <param name="recurse">True to recurse into sub directories.</param>
+            <param name="max_depth">Specify max recursive depth. -1 to not set a limit.</param>
+        </member>
+        <member name="M:NtApiDotNet.NtDirectory.VisitAccessibleDirectories(System.Func{NtApiDotNet.NtDirectory,System.Boolean})">
+            <summary>
+            Visit all accessible directories under this one.
+            </summary>
+            <param name="visitor">A function to be called on every accessible directory. Return true to continue enumeration.</param>
+        </member>
+        <member name="M:NtApiDotNet.NtDirectory.VisitAccessibleDirectories(System.Func{NtApiDotNet.NtDirectory,System.Boolean},System.Boolean)">
+            <summary>
+            Visit all accessible directories under this one.
+            </summary>
+            <param name="visitor">A function to be called on every accessible directory. Return true to continue enumeration.</param>
+            <param name="recurse">True to recurse into sub directories.</param>
+        </member>
+        <member name="M:NtApiDotNet.NtDirectory.VisitAccessibleDirectories(System.Func{NtApiDotNet.NtDirectory,System.Boolean},NtApiDotNet.DirectoryAccessRights,System.Boolean)">
+            <summary>
+            Visit all accessible directories under this one.
+            </summary>
+            <param name="visitor">A function to be called on every accessible directory. Return true to continue enumeration.</param>
+            <param name="desired_access">Specify the desired access for the directory</param>
+            <param name="recurse">True to recurse into sub directories.</param>
         </member>
         <member name="M:NtApiDotNet.NtDirectory.OpenSessionDirectory(System.Int32,System.String,NtApiDotNet.DirectoryAccessRights)">
             <summary>
@@ -2789,6 +2824,23 @@
             <returns>The opened key</returns>
             <exception cref="T:NtApiDotNet.NtException">Thrown on error.</exception>
         </member>
+        <member name="M:NtApiDotNet.NtKey.ReOpen(NtApiDotNet.KeyAccessRights,NtApiDotNet.KeyCreateOptions,System.Boolean)">
+            <summary>
+            Reopen the key with different access rights.
+            </summary>
+            <param name="desired_access">The access rights to reopen with.</param>
+            <param name="options">Open options.</param>
+            <param name="throw_on_error">True to thow on error.</param>
+            <returns>The opened key.</returns>
+        </member>
+        <member name="M:NtApiDotNet.NtKey.ReOpen(NtApiDotNet.KeyAccessRights,NtApiDotNet.KeyCreateOptions)">
+            <summary>
+            Reopen the key with different access rights.
+            </summary>
+            <param name="desired_access">The access rights to reopen with.</param>
+            <param name="options">Open options.</param>
+            <returns>The opened key.</returns>
+        </member>
         <member name="M:NtApiDotNet.NtKey.GetMachineKey">
             <summary>
             Open the machine key
@@ -3610,6 +3662,18 @@
             </summary>
             <returns>The allocated LUID.</returns>
         </member>
+        <member name="M:NtApiDotNet.NtSystemInfo.ResolveObjectAddress(System.Collections.Generic.IEnumerable{NtApiDotNet.NtObject})">
+            <summary>
+            Get the addresses of a list of objects from the handle table and initialize the Address property.
+            </summary>
+            <param name="objects">The list of objects to initialize.</param>
+        </member>
+        <member name="M:NtApiDotNet.NtSystemInfo.ResolveObjectAddress(NtApiDotNet.NtObject)">
+            <summary>
+            Get the address of an object in kernel memory from the handle table and initialize the Address property.
+            </summary>
+            <param name="obj">The object.</param>
+        </member>
         <member name="T:NtApiDotNet.GenericAccessRights">
             <summary>
             Generic access rights.
@@ -3972,6 +4036,12 @@
             Get or set whether the handle is protected from closing.
             </summary>
         </member>
+        <member name="P:NtApiDotNet.NtObject.Address">
+            <summary>
+            Get the object's address is kernel memory.
+            </summary>
+            <remarks>As getting the address is expensive you need to pass the object to NtSystemInfo::ResolveObjectAddress to intialize.</remarks>
+        </member>
         <member name="M:NtApiDotNet.NtObject.Dispose(System.Boolean)">
             <summary>
             Virtual Dispose method.
@@ -3999,6 +4069,30 @@
             </summary>
             <typeparam name="O">The derived type to use as return values</typeparam>
             <typeparam name="A">An enum which represents the access mask values for the type</typeparam>
+        </member>
+        <member name="M:NtApiDotNet.NtObjectWithDuplicate`2.ReOpen(`1,NtApiDotNet.AttributeFlags,System.Boolean)">
+            <summary>
+            Reopen object with different access rights.
+            </summary>
+            <param name="desired_access">The desired access.</param>
+            <param name="attributes">Additional attributes for open.</param>
+            <param name="throw_on_error">True to throw on error.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NtApiDotNet.NtObjectWithDuplicate`2.ReOpen(`1,System.Boolean)">
+            <summary>
+            Reopen object with different access rights.
+            </summary>
+            <param name="desired_access">The desired access.</param>
+            <param name="throw_on_error">True to throw on error.</param>
+            <returns></returns>
+        </member>
+        <member name="M:NtApiDotNet.NtObjectWithDuplicate`2.ReOpen(`1)">
+            <summary>
+            Reopen object with different access rights.
+            </summary>
+            <param name="desired_access">The desired access.</param>
+            <returns></returns>
         </member>
         <member name="M:NtApiDotNet.NtObjectWithDuplicate`2.DuplicateObject(NtApiDotNet.AccessMask,NtApiDotNet.AttributeFlags,NtApiDotNet.DuplicateObjectOptions,System.Boolean)">
             <summary>
@@ -4716,6 +4810,11 @@
         <member name="P:NtApiDotNet.NtMappedSection.FullPath">
             <summary>
             Get full path for mapped section.
+            </summary>
+        </member>
+        <member name="P:NtApiDotNet.NtMappedSection.Protection">
+            <summary>
+            Query the memory protection setting for this mapping.
             </summary>
         </member>
         <member name="M:NtApiDotNet.NtMappedSection.ReleaseHandle">
@@ -5538,6 +5637,59 @@
             <param name="flags">Filter token flags</param>
             <returns>The new filtered token.</returns>
         </member>
+        <member name="M:NtApiDotNet.NtToken.Create(NtApiDotNet.TokenAccessRights,NtApiDotNet.ObjectAttributes,NtApiDotNet.TokenType,NtApiDotNet.Luid,System.Int64,NtApiDotNet.UserGroup,System.Collections.Generic.IEnumerable{NtApiDotNet.UserGroup},System.Collections.Generic.IEnumerable{NtApiDotNet.TokenPrivilege},NtApiDotNet.Sid,NtApiDotNet.Sid,NtApiDotNet.Acl,System.String,System.Boolean)">
+            <summary>
+            Create a token. Needs SeCreateTokenPrivilege.
+            </summary>
+            <param name="desired_access">The desired access for the token.</param>
+            <param name="object_attributes">Object attributes, used to pass SecurityDescriptor or SQOS for impersonation token.</param>
+            <param name="token_type">The type of token.</param>
+            <param name="authentication_id">The authentication ID for the token.</param>
+            <param name="expiration_time">The expiration time for the token.</param>
+            <param name="token_user">The user for the token.</param>
+            <param name="token_groups">The groups for the token.</param>
+            <param name="token_privileges">The privileges for the token.</param>
+            <param name="token_owner">The owner of the token.</param>
+            <param name="token_primary_group">The primary group for the token.</param>
+            <param name="token_default_dacl">The default dacl for the token.</param>
+            <param name="token_source">The source for the token.</param>
+            <param name="throw_on_error">True to throw on error.</param>
+            <returns>The token object.</returns>
+        </member>
+        <member name="M:NtApiDotNet.NtToken.Create(NtApiDotNet.TokenAccessRights,NtApiDotNet.ObjectAttributes,NtApiDotNet.TokenType,NtApiDotNet.Luid,System.Int64,NtApiDotNet.UserGroup,System.Collections.Generic.IEnumerable{NtApiDotNet.UserGroup},System.Collections.Generic.IEnumerable{NtApiDotNet.TokenPrivilege},NtApiDotNet.Sid,NtApiDotNet.Sid,NtApiDotNet.Acl,System.String)">
+            <summary>
+            Create a token. Needs SeCreateTokenPrivilege.
+            </summary>
+            <param name="desired_access">The desired access for the token.</param>
+            <param name="object_attributes">Object attributes, used to pass SecurityDescriptor or SQOS for impersonation token.</param>
+            <param name="token_type">The type of token.</param>
+            <param name="authentication_id">The authentication ID for the token.</param>
+            <param name="expiration_time">The expiration time for the token.</param>
+            <param name="token_user">The user for the token.</param>
+            <param name="token_groups">The groups for the token.</param>
+            <param name="token_privileges">The privileges for the token.</param>
+            <param name="token_owner">The owner of the token.</param>
+            <param name="token_primary_group">The primary group for the token.</param>
+            <param name="token_default_dacl">The default dacl for the token.</param>
+            <param name="token_source">The source for the token.</param>
+            <returns>The token object.</returns>
+        </member>
+        <member name="M:NtApiDotNet.NtToken.Create(NtApiDotNet.Sid,System.Collections.Generic.IEnumerable{NtApiDotNet.Sid},System.Collections.Generic.IEnumerable{NtApiDotNet.TokenPrivilegeValue})">
+            <summary>
+            Create a token. Needs SeCreateTokenPrivilege.
+            </summary>
+            <param name="token_user">The user for the token.</param>
+            <param name="token_groups">The groups for the token.</param>
+            <param name="token_privileges">The privileges for the token.</param>
+            <returns>The token object.</returns>
+        </member>
+        <member name="M:NtApiDotNet.NtToken.Create(NtApiDotNet.Sid)">
+            <summary>
+            Create a token. Needs SeCreateTokenPrivilege.
+            </summary>
+            <param name="token_user">The user for the token.</param>
+            <returns>The token object.</returns>
+        </member>
         <member name="M:NtApiDotNet.NtToken.SetGroup(NtApiDotNet.Sid,NtApiDotNet.GroupAttributes)">
             <summary>
             Set the state of a group
@@ -5867,6 +6019,11 @@
         <member name="P:NtApiDotNet.NtToken.NetworkServiceAuthId">
             <summary>
             Get authentication ID for NETWORK SERVICE
+            </summary>
+        </member>
+        <member name="P:NtApiDotNet.NtToken.AnonymousAuthId">
+            <summary>
+            Get authentication ID for ANONYMOUS
             </summary>
         </member>
         <member name="P:NtApiDotNet.NtToken.FullPath">
@@ -7504,7 +7661,15 @@
             <returns>The Security Identifier</returns>
             <exception cref="T:NtApiDotNet.NtException">Thrown if account cannot be found.</exception>
         </member>
-        <member name="M:NtApiDotNet.NtSecurity.LookupPackageSid(NtApiDotNet.Sid)">
+        <member name="M:NtApiDotNet.NtSecurity.LookupProcessTrustName(NtApiDotNet.Sid)">
+            <summary>
+            Lookup the name of a process trust SID.
+            </summary>
+            <param name="trust_sid">The trust sid to lookup.</param>
+            <returns>The name of the trust sid. null if not found.</returns>
+            <exception cref="T:System.ArgumentException">Thrown if trust_sid is not a trust sid.</exception>
+        </member>
+        <member name="M:NtApiDotNet.NtSecurity.LookupPackageName(NtApiDotNet.Sid)">
             <summary>
             Try and lookup the moniker associated with a package sid.
             </summary>
@@ -7655,6 +7820,13 @@
             <param name="sid">The sid to check.</param>
             <returns>True if a service sid.</returns>
         </member>
+        <member name="M:NtApiDotNet.NtSecurity.IsProcessTrustSid(NtApiDotNet.Sid)">
+            <summary>
+            Checks if a SID is a process trust SID.
+            </summary>
+            <param name="sid">The sid to check.</param>
+            <returns>True if a process trust sid.</returns>
+        </member>
         <member name="M:NtApiDotNet.NtSecurity.IsCapabilitySid(NtApiDotNet.Sid)">
             <summary>
             Checks if a SID is a capability SID.
@@ -7689,6 +7861,14 @@
             </summary>
             <param name="sid">The sid to check.</param>
             <returns>True if a capability sid.</returns>
+        </member>
+        <member name="M:NtApiDotNet.NtSecurity.GetPackageSidParent(NtApiDotNet.Sid)">
+            <summary>
+            Get the parent package SID for a child package SID.
+            </summary>
+            <param name="sid">The child package SID.</param>
+            <returns>The parent package SID.</returns>
+            <exception cref="T:System.ArgumentException">Thrown if sid not a child package SID.</exception>
         </member>
         <member name="M:NtApiDotNet.NtSecurity.ConditionalAceToString(System.Byte[])">
             <summary>
