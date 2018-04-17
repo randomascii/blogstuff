@@ -6,6 +6,9 @@ This commit includes a Python script that creates and deletes files
 in order to provide a test bed and some ETW traces showing the
 results.
 
+A detailed explanation can be found on my blog at:
+https://randomascii.wordpress.com/2018/04/17/making-windows-slower-part-1-file-access/
+
 The Python script (FileStress.py) creates and then deletes 1,000 files
 in one directory, and then another, with a half-second gap in-between.
 To recreate this problem you need to have VsChromium 0.9.26 installed
