@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VAllocStress", "VAllocStress\VAllocStress.vcxproj", "{9DCD1174-0A90-4C83-AB4F-8FFF5B8903F2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VirtualScan", "VirtualScan\VirtualScan.vcxproj", "{EE03E8EC-7A14-4996-B458-FE76F37A7210}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DCD1174-0A90-4C83-AB4F-8FFF5B8903F2}.Debug|x64.ActiveCfg = Debug|x64
+		{9DCD1174-0A90-4C83-AB4F-8FFF5B8903F2}.Debug|x64.Build.0 = Debug|x64
+		{9DCD1174-0A90-4C83-AB4F-8FFF5B8903F2}.Release|x64.ActiveCfg = Release|x64
+		{9DCD1174-0A90-4C83-AB4F-8FFF5B8903F2}.Release|x64.Build.0 = Release|x64
+		{EE03E8EC-7A14-4996-B458-FE76F37A7210}.Debug|x64.ActiveCfg = Debug|x64
+		{EE03E8EC-7A14-4996-B458-FE76F37A7210}.Debug|x64.Build.0 = Debug|x64
+		{EE03E8EC-7A14-4996-B458-FE76F37A7210}.Release|x64.ActiveCfg = Release|x64
+		{EE03E8EC-7A14-4996-B458-FE76F37A7210}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4AA4C733-DD3C-4348-A0B8-CAA1226620CD}
+	EndGlobalSection
+EndGlobal
