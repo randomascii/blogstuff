@@ -1,8 +1,6 @@
-﻿#include "pch.h"
-#include <stdio.h>
-#include <time.h>
-
-// For investigating crbug.com/870054
+﻿// For investigating crbug.com/870054
+// See this blog post for details:
+// https://randomascii.wordpress.com/2018/08/16/24-core-cpu-and-i-cant-type-an-email-part-one/
 // This program intentionally allocates and then frees blocks of executable
 // memory. Each allocation of executable memory at a new address (when integer
 // divided by 256 KiB) causes new CFG memory to be allocated, and these CFG
@@ -10,10 +8,55 @@
 // problems and hangs because (prior to RS4) the CFG scanning is *very* slow.
 // Details in the bug.
 
+#include "pch.h"
+#include <stdio.h>
+#include <time.h>
+
+// Define this if you want this code to have any hope of running on OSs before
+// Windows 10. Not actually tested on other operating systems, but it
+// demonstrates the tricks needed to call SetProcessValidCallTargets without
+// using an import library.
+#define PORTABLE_CODE
+
+// Make it easier to view CFG memory by not letting the compiler optimize away
+// the cfg_reservation pointer.
+#pragma optimize("", off)
+
 static_assert(sizeof(void*) == 8, "64-bit builds only.");
 #ifdef _DEBUG
 #pragma message("Warning: CFG is disabled in debug builds.")
 #endif
+
+#ifdef PORTABLE_CODE
+// You can't call SetProcessValidCallTargets through a function pointer without
+// disabling CFG on the caller, for security reasons.
+BOOL DECLSPEC_GUARDNOCF
+#else
+// Pull in the SetProcessValidCallTargets import library.
+#pragma comment(lib, "mincore.lib")
+BOOL
+#endif
+SetProcessValidCallTargetsWrapper(
+	_In_ HANDLE hProcess,
+	_In_ PVOID VirtualAddress,
+	_In_ SIZE_T RegionSize,
+	_In_ ULONG NumberOfOffsets,
+	_Inout_updates_(NumberOfOffsets) PCFG_CALL_TARGET_INFO OffsetInformation
+)
+{
+#ifdef PORTABLE_CODE
+	static auto kernelbase = GetModuleHandle(L"kernelbase.dll");
+	static auto SetProcessValidCallTargets_p = reinterpret_cast<decltype(&SetProcessValidCallTargets)>
+		(GetProcAddress(kernelbase, "SetProcessValidCallTargets"));
+	if (!SetProcessValidCallTargets_p)
+		return FALSE;
+	return SetProcessValidCallTargets_p(hProcess, VirtualAddress, RegionSize,
+										NumberOfOffsets, OffsetInformation);
+#else
+	return SetProcessValidCallTargets(hProcess, VirtualAddress, RegionSize,
+									  NumberOfOffsets, OffsetInformation);
+#endif
+}
 
 int main(int argc, char* argv[])
 {
@@ -28,6 +71,32 @@ int main(int argc, char* argv[])
 	constexpr size_t one_mb = one_kb * one_kb;
 	constexpr size_t one_gb = one_mb * one_kb;
 	constexpr size_t one_tb = one_gb * one_kb;
+
+	// Find our own CFG reservation - just scan the address space looking for a 2 TB
+	// allocation.
+	const void* cfg_reservation = nullptr;
+	const void* cur_base = nullptr;
+	for (const char* p = nullptr; /**/; /**/)
+	{
+		MEMORY_BASIC_INFORMATION info = {};
+		SIZE_T result = VirtualQuery(p, &info, sizeof(info));
+		if (result != sizeof(info))
+			break;
+		if (info.AllocationBase != cur_base)
+		{
+			// Presumably only the cfg block will be 2 TiB.
+			ptrdiff_t cur_base_size = p - static_cast<const char*>(cur_base);
+			if (cur_base_size == 0x20000000000)
+			{
+				// We found it!
+				cfg_reservation = cur_base;
+				printf("CFG reservation is at address %p\n", cfg_reservation);
+				break;
+			}
+			cur_base = info.AllocationBase;
+		}
+		p += info.RegionSize;
+	}
 
 	// Minimum allocation count is one.
 	size_t num_allocs = 1;
@@ -85,10 +154,32 @@ int main(int argc, char* argv[])
 	for (size_t offset = alloc_stride; offset < 256 * one_tb && alloc_count < num_allocs; offset += alloc_stride)
 	{
 		void* p = VirtualAlloc(null_char + offset, alloc_size, MEM_COMMIT | MEM_RESERVE,
-			PAGE_EXECUTE_READWRITE | PAGE_TARGETS_NO_UPDATE);
+			PAGE_EXECUTE_READWRITE | PAGE_TARGETS_INVALID);
 		if (p)
 		{
-			memset(p, 1, 4096);
+			// Mark some targets as valid to validate interpretation of CFG bits.
+			CFG_CALL_TARGET_INFO info[] =
+			{
+				// Mark some 16-byte aligned targets as valid.
+				{ 0, CFG_CALL_TARGET_VALID },
+				{ 16, CFG_CALL_TARGET_VALID },
+				{ 32, CFG_CALL_TARGET_VALID },
+				{ 48, CFG_CALL_TARGET_VALID },
+				// Mark some unaligned targets as valid. This fails, as documented.
+				// It also halts processing of this array.
+				/*{ 64 + 1, CFG_CALL_TARGET_VALID },
+				{ 80 + 1, CFG_CALL_TARGET_VALID },
+				{ 96 + 1, CFG_CALL_TARGET_VALID },
+				{ 112 + 1, CFG_CALL_TARGET_VALID },*/
+				// Another 16-byte aligned target.
+				{ 192, CFG_CALL_TARGET_VALID },
+			};
+			// To see the CFG bits in the debugger put this expression in the VS
+			// watch window:
+			// (size_t)p/64 + (unsigned char*)cfg_reservation,1000x
+			SetProcessValidCallTargetsWrapper(GetCurrentProcess(),
+				p, alloc_size,
+				ARRAYSIZE(info), &info[0]);
 			VirtualFree(p, 0, MEM_RELEASE);
 			++alloc_count;
 		}
