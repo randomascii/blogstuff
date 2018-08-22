@@ -1,4 +1,6 @@
 ﻿// For investigating crbug.com/870054
+// See this blog post for details:
+// https://randomascii.wordpress.com/2018/08/16/24-core-cpu-and-i-cant-type-an-email-part-one/
 // This program scans the virtual address space of the specified process or
 // processes, specified either as a PID(s) or process name(s). It tracks how
 // long the scan takes, with special attention being paid to the 2 TB CFG
@@ -131,7 +133,6 @@ void ScanProcess(int pid)
 				// Reset all of our settings for the new memory block.
 				cur_base_stats = scan_stats;
 				cur_base = info.AllocationBase;
-				cur_base_size = 0;
 			}
 
 			if (info.State == MEM_COMMIT)
