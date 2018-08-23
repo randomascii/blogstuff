@@ -11,12 +11,13 @@
 #include "pch.h"
 #include <stdio.h>
 #include <time.h>
+#include <VersionHelpers.h>
 
 // Define this if you want this code to have any hope of running on OSs before
 // Windows 10. Not actually tested on other operating systems, but it
 // demonstrates the tricks needed to call SetProcessValidCallTargets without
 // using an import library.
-#define PORTABLE_CODE
+//#define PORTABLE_CODE
 
 // Make it easier to view CFG memory by not letting the compiler optimize away
 // the cfg_reservation pointer.
@@ -149,12 +150,20 @@ int main(int argc, char* argv[])
 	if (alloc_size > alloc_stride)
 		alloc_stride = alloc_size;
 
+#ifdef PORTABLE_CODE
+	DWORD extra_flags = 0;
+	// This call requires a Windows 10 compatibility manifest, FWIW.
+	if (IsWindows10OrGreater()) // Maybe should be checking 8.1?
+		extra_flags = PAGE_TARGETS_INVALID; // Not valid on Windows 7.
+#else
+	DWORD extra_flags = PAGE_TARGETS_INVALID; // Not valid on Windows 7.
+#endif
 	constexpr auto null_char = static_cast<char*>(nullptr);
 	size_t alloc_count = 0;
 	for (size_t offset = alloc_stride; offset < 256 * one_tb && alloc_count < num_allocs; offset += alloc_stride)
 	{
 		void* p = VirtualAlloc(null_char + offset, alloc_size, MEM_COMMIT | MEM_RESERVE,
-			PAGE_EXECUTE_READWRITE | PAGE_TARGETS_INVALID);
+			PAGE_EXECUTE_READWRITE | extra_flags);
 		if (p)
 		{
 			// Mark some targets as valid to validate interpretation of CFG bits.
