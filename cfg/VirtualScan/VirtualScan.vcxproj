@@ -166,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="VirtualScan.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="VirtualScan.manifest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
