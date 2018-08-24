@@ -152,8 +152,12 @@ int main(int argc, char* argv[])
 
 	DWORD extra_flags = 0;
 	// This call requires a Windows 10 compatibility manifest, FWIW.
-	if (IsWindows10OrGreater()) // Maybe should be checking 8.1?
-		extra_flags = PAGE_TARGETS_INVALID; // Not valid on Windows 7.
+	if (IsWindows10OrGreater())
+	{
+		// This flag is not valid before Windows 10 (according to Windows
+		// Internals 7th Edition) and will cause failures.
+		extra_flags = PAGE_TARGETS_INVALID;
+	}
 
 	constexpr auto null_char = static_cast<char*>(nullptr);
 	size_t alloc_count = 0;
