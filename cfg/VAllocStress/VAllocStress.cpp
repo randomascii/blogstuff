@@ -150,14 +150,11 @@ int main(int argc, char* argv[])
 	if (alloc_size > alloc_stride)
 		alloc_stride = alloc_size;
 
-#ifdef PORTABLE_CODE
 	DWORD extra_flags = 0;
 	// This call requires a Windows 10 compatibility manifest, FWIW.
 	if (IsWindows10OrGreater()) // Maybe should be checking 8.1?
 		extra_flags = PAGE_TARGETS_INVALID; // Not valid on Windows 7.
-#else
-	DWORD extra_flags = PAGE_TARGETS_INVALID; // Not valid on Windows 7.
-#endif
+
 	constexpr auto null_char = static_cast<char*>(nullptr);
 	size_t alloc_count = 0;
 	for (size_t offset = alloc_stride; offset < 256 * one_tb && alloc_count < num_allocs; offset += alloc_stride)
