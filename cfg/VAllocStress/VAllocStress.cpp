@@ -52,11 +52,81 @@ SetProcessValidCallTargetsWrapper(
 	if (!SetProcessValidCallTargets_p)
 		return FALSE;
 	return SetProcessValidCallTargets_p(hProcess, VirtualAddress, RegionSize,
-										NumberOfOffsets, OffsetInformation);
+		NumberOfOffsets, OffsetInformation);
 #else
 	return SetProcessValidCallTargets(hProcess, VirtualAddress, RegionSize,
-									  NumberOfOffsets, OffsetInformation);
+		NumberOfOffsets, OffsetInformation);
 #endif
+}
+
+struct CFGData
+{
+	// The CFG block count, or how many were found if a timeout occurs.
+	size_t count;
+	// The CFG committed bytes, or how many were found if a timeout occurs.
+	size_t bytes;
+	// Zero if the blocks were fully counted. If not it is how many ms was spent
+	// scanning.
+	DWORD timeout;
+	// The location of the CFG reservation. This can be passed in to
+	// subsequent calls to save time and to allow a partial CFG block count to
+	// be calculated.
+	const void* cfg_reservation;
+};
+
+// Get data about the processes CFG memory. hint can be zero or the address
+// of the CFG region from a previous call. max_ms can be zero or the maximum
+// number of ms to spend in the function.
+// If hint is supplied then if max_ms is exceeded then a lower bounds on the
+// CFG block count can still be returned.
+CFGData GetCFGData(const void* hint, DWORD max_ms)
+{
+	DWORD start = GetTickCount();
+	// Count the number of blocks in the current reservation.
+	size_t block_count = 0;
+	// Count the number of committed bytes in the current reservation.
+	size_t byte_count = 0;
+	// Find our own CFG reservation - just scan the address space looking for a 2 TB
+	// allocation.
+	const void* cur_base = hint;
+	for (const char* p = reinterpret_cast<const char*>(hint); /**/; /**/)
+	{
+		MEMORY_BASIC_INFORMATION info = {};
+		SIZE_T result = VirtualQuery(p, &info, sizeof(info));
+		if (result != sizeof(info))
+			break;
+		if (info.AllocationBase != cur_base)
+		{
+			// Presumably only the cfg block will be 2 TiB.
+			ptrdiff_t cur_base_size = p - static_cast<const char*>(cur_base);
+			if (cur_base_size == 0x20000000000)
+			{
+				// We found it!
+				return { block_count, byte_count, 0, cur_base };
+			}
+			cur_base = info.AllocationBase;
+			block_count = 0;
+			byte_count = 0;
+		}
+		p += info.RegionSize;
+		if (info.State == MEM_COMMIT)
+		{
+			++block_count;
+			byte_count += info.RegionSize;
+		}
+
+		if (max_ms)
+		{
+			DWORD elapsed = GetTickCount() - start;
+			if (elapsed > max_ms)
+			{
+				if (hint)
+					return { block_count, byte_count, elapsed, hint };
+				return { 0, 0, elapsed, nullptr };
+			}
+		}
+	}
+	return { 0, 0, 0, nullptr };
 }
 
 int main(int argc, char* argv[])
@@ -72,32 +142,6 @@ int main(int argc, char* argv[])
 	constexpr size_t one_mb = one_kb * one_kb;
 	constexpr size_t one_gb = one_mb * one_kb;
 	constexpr size_t one_tb = one_gb * one_kb;
-
-	// Find our own CFG reservation - just scan the address space looking for a 2 TB
-	// allocation.
-	const void* cfg_reservation = nullptr;
-	const void* cur_base = nullptr;
-	for (const char* p = nullptr; /**/; /**/)
-	{
-		MEMORY_BASIC_INFORMATION info = {};
-		SIZE_T result = VirtualQuery(p, &info, sizeof(info));
-		if (result != sizeof(info))
-			break;
-		if (info.AllocationBase != cur_base)
-		{
-			// Presumably only the cfg block will be 2 TiB.
-			ptrdiff_t cur_base_size = p - static_cast<const char*>(cur_base);
-			if (cur_base_size == 0x20000000000)
-			{
-				// We found it!
-				cfg_reservation = cur_base;
-				printf("CFG reservation is at address %p\n", cfg_reservation);
-				break;
-			}
-			cur_base = info.AllocationBase;
-		}
-		p += info.RegionSize;
-	}
 
 	// Minimum allocation count is one.
 	size_t num_allocs = 1;
@@ -159,6 +203,11 @@ int main(int argc, char* argv[])
 		extra_flags = PAGE_TARGETS_INVALID;
 	}
 
+	auto cfg_data = GetCFGData(nullptr, 0);
+	printf("CFG reservation is at address %p\n", cfg_data.cfg_reservation);
+	printf("Started with %zu committed CFG blocks (%.1f MiB).\n",
+			cfg_data.count, cfg_data.bytes / double(one_mb));
+
 	constexpr auto null_char = static_cast<char*>(nullptr);
 	size_t alloc_count = 0;
 	for (size_t offset = alloc_stride; offset < 256 * one_tb && alloc_count < num_allocs; offset += alloc_stride)
@@ -195,7 +244,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	printf("Temporarily allocated %zd blocks of size %1.3f MiB with a stride of %1.3f MiB.\n",
-			alloc_count, alloc_size / double(one_mb), alloc_stride / double(one_mb));
+		alloc_count, alloc_size / double(one_mb), alloc_stride / double(one_mb));
 	size_t cfg_alloc_size = alloc_size / 64;
 	if (cfg_alloc_size < 4 * one_kb)
 		cfg_alloc_size = 4 * one_kb;
@@ -203,14 +252,21 @@ int main(int argc, char* argv[])
 	if (alloc_stride > cfg_alloc_size * 64)
 		cfg_descriptor = " fragmented";
 	printf("This will have allocated an extra %1.3f MiB of%s CFG memory (default is 10-30 MiB).\n",
-			cfg_alloc_size * alloc_count / double(one_mb), cfg_descriptor);
+		cfg_alloc_size * alloc_count / double(one_mb), cfg_descriptor);
+
+	cfg_data = GetCFGData(cfg_data.cfg_reservation, 2000);
+	if (cfg_data.timeout)
+		printf("Ended with %zu committed CFG blocks (%.1f MiB) found before scanning timed out after %1.3f s.\n",
+			cfg_data.count, cfg_data.bytes / double(one_mb), cfg_data.timeout / 1000.0);
+	else
+		printf("Ended with %zu committed CFG blocks (%.1f MiB).\n", cfg_data.count, cfg_data.bytes / double(one_mb));
 
 	printf("Finished initialization. Sitting in VirtualAlloc loop. Type Ctrl+C to exit.\n\n");
 
 	// Sit in a loop where we sleep for a bit and then allocate a block of
-	// executable memory. If an external program is scanning our address space
-	// (could be WmiPrvSE.exe or VirtualScan.exe) then VirtualAlloc may take an
-	// arbitrarily long time to return - 50 s is the longest seen.
+	  // executable memory. If an external program is scanning our address space
+	  // (could be WmiPrvSE.exe or VirtualScan.exe) then VirtualAlloc may take an
+	  // arbitrarily long time to return - 50 s is the longest seen.
 	for (;;)
 	{
 		Sleep(500);
