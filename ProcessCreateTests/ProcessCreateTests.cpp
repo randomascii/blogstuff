@@ -111,20 +111,44 @@ int main(int argc, char* argv[])
 	HANDLE sem_shutdown = CreateSemaphoreA(nullptr, 0, num_descendants, "ProcessCreateShutdown.Semaphore");
 	DWORD sem_error2 = GetLastError();
 	assert(sem_error1 == sem_error2);
-	if (argc > 1)
+
+	// Normally the main process is launched with no parameters, the child
+	// processes are launched with the "child" command-line parameter, and the
+	// grand-child processes are launched with the grand-child command-line
+	// parameter. However the main process can be launched with the -user32
+	// option. In that case the child processes are launched with child-user32
+	// and the grand-child processes are launched with grand-child-user32.
+	// Having -user32 present in the command line causes all processes to
+	// load user32.dll which allocates GDI objects and slows process destruction.
+	bool user32_requested = argc > 1 && strstr(argv[1], "-user32");
+	if (user32_requested)
 	{
-		assert(sem_error1 == ERROR_ALREADY_EXISTS);
+		// This makes process-shutdown lock contention *much* worse because everything
+		// is horrible.
+		LoadLibrary(L"user32.dll");
+	}
+
+	// We are a child process *unless* there was no argument or the command-line
+	// argument was -user32.
+	if (argc > 1 && strcmp(argv[1], "-user32") != 0)
+	{
+		if (sem_error1 != ERROR_ALREADY_EXISTS)
+		{
+			printf("Semaphore has not been created. Exiting.\n");
+			return 0;
+		}
 		std::vector<HANDLE> proc_handles;
-		if (strcmp(argv[1], "child") == 0)
+		if (strncmp(argv[1], "child", 5) == 0)
 			for (int i = 0; i < num_grand_children; ++i)
-				Spawn("grand-child", proc_handles);
+				Spawn(("grand-" + std::string(argv[1])).c_str(), proc_handles);
 		// Let the initial process know that we are done.
 		ReleaseSemaphore(sem_startup, 1, nullptr);
 		// Wait for the death signal.
 		WaitForSingleObject(sem_shutdown, INFINITE);
 
 		// Wait for all of the grand-children to terminate.
-		for (auto handle : proc_handles) {
+		for (auto handle : proc_handles)
+		{
 			WaitForSingleObject(handle, INFINITE);
 			CloseHandle(handle);
 		}
@@ -144,7 +168,12 @@ int main(int argc, char* argv[])
 			auto start = GetAccurateTime();
 			std::vector<HANDLE> proc_handles;
 			for (int i = 0; i < num_children; ++i)
-				Spawn("child", proc_handles);
+			{
+				if (user32_requested)
+					Spawn("child-user32", proc_handles);
+				else
+					Spawn("child", proc_handles);
+			}
 			// Wait for all spawned processes to say that they are running.
 			for (int i = 0; i < num_descendants; ++i)
 				WaitForSingleObject(sem_startup, INFINITE);
