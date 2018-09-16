@@ -1,7 +1,10 @@
 #include <assert.h>
 #include <vector>
 
+#define NOMINMAX // Sigh...
 #include <Windows.h>
+
+#include <algorithm>
 
 // Number of child processes that the first process should create.
 constexpr int num_children = 40;
@@ -52,8 +55,13 @@ double GetAccurateFrequency()
 
 DWORD WINAPI LockChecker(LPVOID data)
 {
+	// Windows 10-recent only but *so* handy.
+	// https://randomascii.wordpress.com/2015/10/26/thread-naming-in-windows-time-for-something-better/
+	SetThreadDescription(GetCurrentThread(), L"LockChecker");
+
 	HANDLE stop_checker = reinterpret_cast<HANDLE>(data);
 	int64_t total = 0;
+	int64_t maximum = 0;
 	DWORD count = 0;
 	// Dynamically load user32.dll so that we don't pull it in to all of the descendant
 	// processes, because then DETACHED_PROCESS doesn't help.
@@ -72,24 +80,30 @@ DWORD WINAPI LockChecker(LPVOID data)
 
 		int64_t elapsed = GetAccurateTime() - start;
 
+		maximum = std::max(elapsed, maximum);
 		total += elapsed;
 		count++;
 		DWORD waitResult = WaitForSingleObject(stop_checker, 0);
 		if (waitResult == WAIT_OBJECT_0)
 			break;
 		// Wait a little while before polling again.
-		Sleep(100);
+		Sleep(10);
 	}
 
 	double frequency = GetAccurateFrequency();
 	double total_d = total / frequency;
-	printf("Lock blocked for %1.3f s.\n", total_d);
+	double maximum_d = maximum / frequency;
+	printf("Lock blocked for %1.3f s total, maximum was %1.3f s.\n", total_d, maximum_d);
 	printf("Average block time was %1.3f s.\n", total_d / count);
 	return 0;
 }
 
 int main(int argc, char* argv[])
 {
+	// Windows 10-recent only but *so* handy.
+	// https://randomascii.wordpress.com/2015/10/26/thread-naming-in-windows-time-for-something-better/
+	SetThreadDescription(GetCurrentThread(), L"MainThread");
+
 	// Child processes signal this when they have finished starting up.
 	HANDLE sem_startup = CreateSemaphoreA(nullptr, 0, num_descendants, "ProcessCreateStartup.Semaphore");
 	DWORD sem_error1 = GetLastError();
@@ -117,6 +131,8 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
+		// Print the main process PID for ease of ETW profiling.
+		printf("Main process pid is %u.\n", GetCurrentProcessId());
 		for (int i = 0; i < kNumLoops; ++i)
 		{
 			// Start up a monitoring thread to look for lock contention.
