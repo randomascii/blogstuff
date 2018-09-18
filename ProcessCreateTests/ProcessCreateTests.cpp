@@ -164,7 +164,10 @@ int main(int argc, char* argv[])
 			HANDLE h_thread = CreateThread(nullptr, 0, LockChecker, stop_checker, 0, nullptr);
 
 			assert(sem_error1 == 0);
-			printf("Testing with %d descendant processes.\n", num_descendants);
+			if (user32_requested)
+				printf("Testing with %d descendant processes with user32.dll loaded.\n", num_descendants);
+			else
+				printf("Testing with %d descendant processes.\n", num_descendants);
 			auto start = GetAccurateTime();
 			std::vector<HANDLE> proc_handles;
 			for (int i = 0; i < num_children; ++i)
