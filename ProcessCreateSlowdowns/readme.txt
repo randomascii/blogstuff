@@ -5,3 +5,7 @@ unique log file name. Application Verifier is a bug finding tool that is
 discussed here:
 
 https://randomascii.wordpress.com/2011/12/07/increased-reliability-through-more-crashes/
+
+The blog post for this specific issue is here:
+
+https://randomascii.wordpress.com/2018/10/15/making-windows-slower-part-2-process-creation/
