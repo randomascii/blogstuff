@@ -112,6 +112,10 @@ int main(int argc, char* argv[])
 	DWORD sem_error2 = GetLastError();
 	assert(sem_error1 == sem_error2);
 
+	// We are a child process *unless* there was no argument or the command-line
+	// or the argument was -user32.
+	bool is_child = argc > 1 && strcmp(argv[1], "-user32");
+
 	// Normally the main process is launched with no parameters, the child
 	// processes are launched with the "child" command-line parameter, and the
 	// grand-child processes are launched with the grand-child command-line
@@ -123,14 +127,22 @@ int main(int argc, char* argv[])
 	bool user32_requested = argc > 1 && strstr(argv[1], "-user32");
 	if (user32_requested)
 	{
+		if (is_child)
+		{
+			// This disables the ability to use NTUser/GDI functions at the lowest layer.
+			// It is meant as a security mitigation but it also avoids the performance
+			// cost of GDI.
+			//PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY pol = {};
+			//pol.DisallowWin32kSystemCalls = 1;
+			//SetProcessMitigationPolicy(ProcessSystemCallDisablePolicy,
+			//						   &pol, sizeof(pol));
+		}
 		// This makes process-shutdown lock contention *much* worse because everything
 		// is horrible.
 		LoadLibrary(L"user32.dll");
 	}
 
-	// We are a child process *unless* there was no argument or the command-line
-	// argument was -user32.
-	if (argc > 1 && strcmp(argv[1], "-user32") != 0)
+	if (is_child)
 	{
 		if (sem_error1 != ERROR_ALREADY_EXISTS)
 		{
