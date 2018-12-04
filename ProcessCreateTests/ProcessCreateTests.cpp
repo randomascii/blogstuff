@@ -130,8 +130,8 @@ int main(int argc, char* argv[])
 		if (is_child)
 		{
 			// This disables the ability to use NTUser/GDI functions at the lowest layer.
-			// It is meant as a security mitigation but it also avoids the performance
-			// cost of GDI.
+			// This avoids the cost of loading GDI, but it also prevents any DLLs that
+			// depend on gdi32.dll from loading, so it is not useful as an optimization.
 			//PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY pol = {};
 			//pol.DisallowWin32kSystemCalls = 1;
 			//SetProcessMitigationPolicy(ProcessSystemCallDisablePolicy,
