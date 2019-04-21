@@ -1,0 +1,526 @@
+0: kd> uf nt!MiCopyToCfgBitmap
+nt!MiCopyToCfgBitMap:
+      fffff802`60ca7d60 4055            push    rbp
+      fffff802`60ca7d62 4154            push    r12
+      fffff802`60ca7d64 4155            push    r13
+      fffff802`60ca7d66 4156            push    r14
+      fffff802`60ca7d68 4157            push    r15
+      fffff802`60ca7d6a 4881ec90000000  sub     rsp,90h
+      fffff802`60ca7d71 488d6c2430      lea     rbp,[rsp+30h]
+      fffff802`60ca7d76 48899d90000000  mov     qword ptr [rbp+90h],rbx
+      fffff802`60ca7d7d 4889b598000000  mov     qword ptr [rbp+98h],rsi
+      fffff802`60ca7d84 4889bda0000000  mov     qword ptr [rbp+0A0h],rdi
+      fffff802`60ca7d8b 488b050e3fe1ff  mov     rax,qword ptr [nt!_security_cookie (fffff802`60abbca0)]
+      fffff802`60ca7d92 4833c5          xor     rax,rbp
+      fffff802`60ca7d95 48894558        mov     qword ptr [rbp+58h],rax
+      fffff802`60ca7d99 44894d30        mov     dword ptr [rbp+30h],r9d
+      fffff802`60ca7d9d 4c8bf2          mov     r14,rdx
+      fffff802`60ca7da0 4c8ba5c8000000  mov     r12,qword ptr [rbp+0C8h]
+      fffff802`60ca7da7 48895550        mov     qword ptr [rbp+50h],rdx
+      fffff802`60ca7dab 33d2            xor     edx,edx
+      fffff802`60ca7dad 895500          mov     dword ptr [rbp],edx
+      fffff802`60ca7db0 448bbdc0000000  mov     r15d,dword ptr [rbp+0C0h]
+      fffff802`60ca7db7 458bdf          mov     r11d,r15d
+      fffff802`60ca7dba 4c897d08        mov     qword ptr [rbp+8],r15
+      fffff802`60ca7dbe 895510          mov     dword ptr [rbp+10h],edx
+      fffff802`60ca7dc1 41ba00100000    mov     r10d,1000h
+      fffff802`60ca7dc7 4c895548        mov     qword ptr [rbp+48h],r10
+      fffff802`60ca7dcb 4983fe01        cmp     r14,1
+      fffff802`60ca7dcf 0f864d020000    jbe     nt!MiCopyToCfgBitMap+0x2c2 (fffff802`60ca8022)
+
+nt!MiCopyToCfgBitMap+0x75:
+      fffff802`60ca7dd5 41b84d695465    mov     r8d,6554694Dh
+      fffff802`60ca7ddb 418bd2          mov     edx,r10d
+      fffff802`60ca7dde b900020000      mov     ecx,200h
+      fffff802`60ca7de3 e84882d5ff      call    nt!ExAllocatePoolWithTag (fffff802`60a00030)
+      fffff802`60ca7de8 4c8be8          mov     r13,rax
+      fffff802`60ca7deb 48894520        mov     qword ptr [rbp+20h],rax
+      fffff802`60ca7def 8b5500          mov     edx,dword ptr [rbp]
+      fffff802`60ca7df2 458bdf          mov     r11d,r15d
+      fffff802`60ca7df5 4885c0          test    rax,rax
+      fffff802`60ca7df8 0f84f4f81900    je      nt!MiCopyToCfgBitMap+0x19f992 (fffff802`60e476f2)
+
+nt!MiCopyToCfgBitMap+0x9e:
+      fffff802`60ca7dfe c7451001000000  mov     dword ptr [rbp+10h],1
+      fffff802`60ca7e05 41ba00100000    mov     r10d,1000h
+
+nt!MiCopyToCfgBitMap+0xab:
+      fffff802`60ca7e0b 4c8b85b0000000  mov     r8,qword ptr [rbp+0B0h]
+      fffff802`60ca7e12 498bf0          mov     rsi,r8
+      fffff802`60ca7e15 4c894518        mov     qword ptr [rbp+18h],r8
+      fffff802`60ca7e19 4c8b8dd0000000  mov     r9,qword ptr [rbp+0D0h]
+      fffff802`60ca7e20 418bc9          mov     ecx,r9d
+      fffff802`60ca7e23 81e1ff0f0000    and     ecx,0FFFh
+      fffff802`60ca7e29 418bf8          mov     edi,r8d
+      fffff802`60ca7e2c 81e7ff0f0000    and     edi,0FFFh
+      fffff802`60ca7e32 81c7ff0f0000    add     edi,0FFFh
+      fffff802`60ca7e38 03f9            add     edi,ecx
+      fffff802`60ca7e3a 48c1ef0c        shr     rdi,0Ch
+      fffff802`60ca7e3e 498bc1          mov     rax,r9
+      fffff802`60ca7e41 48c1e80c        shr     rax,0Ch
+      fffff802`60ca7e45 4803f8          add     rdi,rax
+      fffff802`60ca7e48 48897d28        mov     qword ptr [rbp+28h],rdi
+      fffff802`60ca7e4c 33db            xor     ebx,ebx
+
+nt!MiCopyToCfgBitMap+0xee:
+      fffff802`60ca7e4e 4d85c9          test    r9,r9
+      fffff802`60ca7e51 0f8493000000    je      nt!MiCopyToCfgBitMap+0x18a (fffff802`60ca7eea)
+
+nt!MiCopyToCfgBitMap+0xf7:
+      fffff802`60ca7e57 458d42ff        lea     r8d,[r10-1]
+      fffff802`60ca7e5b 418bc8          mov     ecx,r8d
+      fffff802`60ca7e5e 23ce            and     ecx,esi
+      fffff802`60ca7e60 498bc2          mov     rax,r10
+      fffff802`60ca7e63 482bc1          sub     rax,rcx
+      fffff802`60ca7e66 418bda          mov     ebx,r10d
+      fffff802`60ca7e69 2bd9            sub     ebx,ecx
+      fffff802`60ca7e6b 493bc1          cmp     rax,r9
+      fffff802`60ca7e6e 410f43d9        cmovae  ebx,r9d
+      fffff802`60ca7e72 8bfb            mov     edi,ebx
+      fffff802`60ca7e74 4983fe01        cmp     r14,1
+      fffff802`60ca7e78 0f87ee000000    ja      nt!MiCopyToCfgBitMap+0x20c (fffff802`60ca7f6c)
+
+nt!MiCopyToCfgBitMap+0x11e:
+      fffff802`60ca7e7e 488b95b8000000  mov     rdx,qword ptr [rbp+0B8h]
+    1 fffff802`60ca7e85 488bce          mov     rcx,rsi
+      fffff802`60ca7e88 e803d3a7ff      call    nt!MiSplitPrivatePage (fffff802`60725190)
+      fffff802`60ca7e8d 8bd8            mov     ebx,eax
+      fffff802`60ca7e8f 85c0            test    eax,eax
+      fffff802`60ca7e91 0f88d8f81900    js      nt!MiCopyToCfgBitMap+0x19fa0f (fffff802`60e4776f)
+
+nt!MiCopyToCfgBitMap+0x137:
+      fffff802`60ca7e97 4c8bcf          mov     r9,rdi
+      fffff802`60ca7e9a 4d8bc5          mov     r8,r13
+      fffff802`60ca7e9d 488b95b8000000  mov     rdx,qword ptr [rbp+0B8h]
+      fffff802`60ca7ea4 488bce          mov     rcx,rsi
+      fffff802`60ca7ea7 e874dba7ff      call    nt!MiCopyToUserVa (fffff802`60725a20)
+      fffff802`60ca7eac 8bd8            mov     ebx,eax
+      fffff802`60ca7eae 85c0            test    eax,eax
+      fffff802`60ca7eb0 0f88b9f81900    js      nt!MiCopyToCfgBitMap+0x19fa0f (fffff802`60e4776f)
+
+nt!MiCopyToCfgBitMap+0x156:
+      fffff802`60ca7eb6 8b5500          mov     edx,dword ptr [rbp]
+      fffff802`60ca7eb9 85d2            test    edx,edx
+      fffff802`60ca7ebb 0f85bc010000    jne     nt!MiCopyToCfgBitMap+0x31d (fffff802`60ca807d)
+
+nt!MiCopyToCfgBitMap+0x161:
+      fffff802`60ca7ec1 4803f7          add     rsi,rdi
+      fffff802`60ca7ec4 48897518        mov     qword ptr [rbp+18h],rsi
+      fffff802`60ca7ec8 4c8b8dd0000000  mov     r9,qword ptr [rbp+0D0h]
+      fffff802`60ca7ecf 4c2bcf          sub     r9,rdi
+      fffff802`60ca7ed2 4c898dd0000000  mov     qword ptr [rbp+0D0h],r9
+      fffff802`60ca7ed9 4c8b5548        mov     r10,qword ptr [rbp+48h]
+      fffff802`60ca7edd 488b7d28        mov     rdi,qword ptr [rbp+28h]
+      fffff802`60ca7ee1 4c8b5d08        mov     r11,qword ptr [rbp+8]
+      fffff802`60ca7ee5 e964ffffff      jmp     nt!MiCopyToCfgBitMap+0xee (fffff802`60ca7e4e)
+
+nt!MiCopyToCfgBitMap+0x18a:
+      fffff802`60ca7eea 4c8bbdb0000000  mov     r15,qword ptr [rbp+0B0h]
+      fffff802`60ca7ef1 837d1000        cmp     dword ptr [rbp+10h],0
+      fffff802`60ca7ef5 740a            je      nt!MiCopyToCfgBitMap+0x1a1 (fffff802`60ca7f01)
+
+nt!MiCopyToCfgBitMap+0x197:
+      fffff802`60ca7ef7 33d2            xor     edx,edx
+      fffff802`60ca7ef9 498bcd          mov     rcx,r13
+      fffff802`60ca7efc e87f8dd5ff      call    nt!ExFreePoolWithTag (fffff802`60a00c80)
+
+nt!MiCopyToCfgBitMap+0x1a1:
+      fffff802`60ca7f01 4d85f6          test    r14,r14
+      fffff802`60ca7f04 7435            je      nt!MiCopyToCfgBitMap+0x1db (fffff802`60ca7f3b)
+
+nt!MiCopyToCfgBitMap+0x1a6:
+      fffff802`60ca7f06 85db            test    ebx,ebx
+      fffff802`60ca7f08 0f886af81900    js      nt!MiCopyToCfgBitMap+0x19fa18 (fffff802`60e47778)
+
+nt!MiCopyToCfgBitMap+0x1ae:
+      fffff802`60ca7f0e 48c1e70c        shl     rdi,0Ch
+      fffff802`60ca7f12 4981e700f0ffff  and     r15,0FFFFFFFFFFFFF000h
+      fffff802`60ca7f19 65488b042588010000 mov   rax,qword ptr gs:[188h]
+      fffff802`60ca7f22 488b88b8000000  mov     rcx,qword ptr [rax+0B8h]
+      fffff802`60ca7f29 4881c100050000  add     rcx,500h
+      fffff802`60ca7f30 4c8bc7          mov     r8,rdi
+      fffff802`60ca7f33 498bd7          mov     rdx,r15
+      fffff802`60ca7f36 e825d30500      call    nt!MiEliminateZeroPages (fffff802`60d05260)
+
+nt!MiCopyToCfgBitMap+0x1db:
+      fffff802`60ca7f3b 8bc3            mov     eax,ebx
+      fffff802`60ca7f3d 488b4d58        mov     rcx,qword ptr [rbp+58h]
+      fffff802`60ca7f41 4833cd          xor     rcx,rbp
+      fffff802`60ca7f44 e857c4b9ff      call    nt!_security_check_cookie (fffff802`608443a0)
+      fffff802`60ca7f49 488b9d90000000  mov     rbx,qword ptr [rbp+90h]
+      fffff802`60ca7f50 488bb598000000  mov     rsi,qword ptr [rbp+98h]
+      fffff802`60ca7f57 488bbda0000000  mov     rdi,qword ptr [rbp+0A0h]
+      fffff802`60ca7f5e 488d6560        lea     rsp,[rbp+60h]
+      fffff802`60ca7f62 415f            pop     r15
+      fffff802`60ca7f64 415e            pop     r14
+      fffff802`60ca7f66 415d            pop     r13
+      fffff802`60ca7f68 415c            pop     r12
+      fffff802`60ca7f6a 5d              pop     rbp
+      fffff802`60ca7f6b c3              ret
+
+nt!MiCopyToCfgBitMap+0x20c:
+      fffff802`60ca7f6c 8b4530          mov     eax,dword ptr [rbp+30h]
+      fffff802`60ca7f6f 83f801          cmp     eax,1
+      fffff802`60ca7f72 0f8510010000    jne     nt!MiCopyToCfgBitMap+0x328 (fffff802`60ca8088)
+
+nt!MiCopyToCfgBitMap+0x218:
+      fffff802`60ca7f78 413b16          cmp     edx,dword ptr [r14]
+      fffff802`60ca7f7b 7331            jae     nt!MiCopyToCfgBitMap+0x24e (fffff802`60ca7fae)
+
+nt!MiCopyToCfgBitMap+0x21d:
+      fffff802`60ca7f7d 8bca            mov     ecx,edx
+      fffff802`60ca7f7f 4803c9          add     rcx,rcx
+      fffff802`60ca7f82 498b4608        mov     rax,qword ptr [r14+8]
+      fffff802`60ca7f86 488b14c8        mov     rdx,qword ptr [rax+rcx*8]
+      fffff802`60ca7f8a 492bd3          sub     rdx,r11
+      fffff802`60ca7f8d 498d4aff        lea     rcx,[r10-1]
+      fffff802`60ca7f91 48f7d1          not     rcx
+      fffff802`60ca7f94 4823ca          and     rcx,rdx
+      fffff802`60ca7f97 488bc1          mov     rax,rcx
+      fffff802`60ca7f9a 48c1e804        shr     rax,4
+      fffff802`60ca7f9e 4803c0          add     rax,rax
+      fffff802`60ca7fa1 48c1e803        shr     rax,3
+      fffff802`60ca7fa5 493bc2          cmp     rax,r10
+      fffff802`60ca7fa8 0f8362f71900    jae     nt!MiCopyToCfgBitMap+0x19f9b0 (fffff802`60e47710)
+
+nt!MiCopyToCfgBitMap+0x24e:
+      fffff802`60ca7fae 4423c6          and     r8d,esi
+      fffff802`60ca7fb1 418bc8          mov     ecx,r8d
+      fffff802`60ca7fb4 498bc2          mov     rax,r10
+      fffff802`60ca7fb7 482bc1          sub     rax,rcx
+      fffff802`60ca7fba 493bc1          cmp     rax,r9
+      fffff802`60ca7fbd 0f826af71900    jb      nt!MiCopyToCfgBitMap+0x19f9cd (fffff802`60e4772d)
+
+nt!MiCopyToCfgBitMap+0x263:
+      fffff802`60ca7fc3 418bf9          mov     edi,r9d
+
+nt!MiCopyToCfgBitMap+0x266:
+      fffff802`60ca7fc6 448bc7          mov     r8d,edi
+      fffff802`60ca7fc9 488bd6          mov     rdx,rsi
+      fffff802`60ca7fcc 498bcd          mov     rcx,r13
+      fffff802`60ca7fcf e86c3dbdff      call    nt!memcpy (fffff802`6087bd40)
+      fffff802`60ca7fd4 eb1e            jmp     nt!MiCopyToCfgBitMap+0x294 (fffff802`60ca7ff4)
+
+nt!MiCopyToCfgBitMap+0x294:
+      fffff802`60ca7ff4 4c896d40        mov     qword ptr [rbp+40h],r13
+      fffff802`60ca7ff8 8d04fd00000000  lea     eax,[rdi*8]
+      fffff802`60ca7fff 894538          mov     dword ptr [rbp+38h],eax
+      fffff802`60ca8002 8bf7            mov     esi,edi
+      fffff802`60ca8004 d1ee            shr     esi,1
+      fffff802`60ca8006 8bde            mov     ebx,esi
+      fffff802`60ca8008 c1e307          shl     ebx,7
+      fffff802`60ca800b 8b4500          mov     eax,dword ptr [rbp]
+
+nt!MiCopyToCfgBitMap+0x2ae:
+      fffff802`60ca800e 413b06          cmp     eax,dword ptr [r14]
+      fffff802`60ca8011 7228            jb      nt!MiCopyToCfgBitMap+0x2db (fffff802`60ca803b)
+
+nt!MiCopyToCfgBitMap+0x2b3:
+      fffff802`60ca8013 8bc3            mov     eax,ebx
+      fffff802`60ca8015 48014508        add     qword ptr [rbp+8],rax
+
+nt!MiCopyToCfgBitMap+0x2b9:
+      fffff802`60ca8019 488b7518        mov     rsi,qword ptr [rbp+18h]
+      fffff802`60ca801d e95cfeffff      jmp     nt!MiCopyToCfgBitMap+0x11e (fffff802`60ca7e7e)
+
+nt!MiCopyToCfgBitMap+0x2c2:
+      fffff802`60ca8022 4d85f6          test    r14,r14
+      fffff802`60ca8025 0f8517020000    jne     nt!MiCopyToCfgBitMap+0x4e2 (fffff802`60ca8242)
+
+nt!MiCopyToCfgBitMap+0x2cb:
+      fffff802`60ca802b 4c8b2dbe9ee4ff  mov     r13,qword ptr [nt!MiState+0x23b0 (fffff802`60af1ef0)]
+
+nt!MiCopyToCfgBitMap+0x2d2:
+      fffff802`60ca8032 4c896d20        mov     qword ptr [rbp+20h],r13
+      fffff802`60ca8036 e9d0fdffff      jmp     nt!MiCopyToCfgBitMap+0xab (fffff802`60ca7e0b)
+
+nt!MiCopyToCfgBitMap+0x2db:
+      fffff802`60ca803b 8bc8            mov     ecx,eax
+      fffff802`60ca803d 4803c9          add     rcx,rcx
+      fffff802`60ca8040 498b4608        mov     rax,qword ptr [r14+8]
+      fffff802`60ca8044 8b14c8          mov     edx,dword ptr [rax+rcx*8]
+      fffff802`60ca8047 2b5508          sub     edx,dword ptr [rbp+8]
+      fffff802`60ca804a 8bde            mov     ebx,esi
+      fffff802`60ca804c c1e307          shl     ebx,7
+      fffff802`60ca804f 3bd3            cmp     edx,ebx
+      fffff802`60ca8051 73c0            jae     nt!MiCopyToCfgBitMap+0x2b3 (fffff802`60ca8013)
+
+nt!MiCopyToCfgBitMap+0x2f3:
+      fffff802`60ca8053 c1ea04          shr     edx,4
+      fffff802`60ca8056 0fb644c808      movzx   eax,byte ptr [rax+rcx*8+8]
+      fffff802`60ca805b a805            test    al,5
+      fffff802`60ca805d 0f84c9010000    je      nt!MiCopyToCfgBitMap+0x4cc (fffff802`60ca822c)
+
+nt!MiCopyToCfgBitMap+0x303:
+      fffff802`60ca8063 8d0c12          lea     ecx,[rdx+rdx]
+      fffff802`60ca8066 8d4101          lea     eax,[rcx+1]
+      fffff802`60ca8069 410fb34500      btr     dword ptr [r13],eax
+      fffff802`60ca806e 410fab4d00      bts     dword ptr [r13],ecx
+
+nt!MiCopyToCfgBitMap+0x313:
+      fffff802`60ca8073 8b4500          mov     eax,dword ptr [rbp]
+      fffff802`60ca8076 ffc0            inc     eax
+      fffff802`60ca8078 894500          mov     dword ptr [rbp],eax
+      fffff802`60ca807b eb91            jmp     nt!MiCopyToCfgBitMap+0x2ae (fffff802`60ca800e)
+
+nt!MiCopyToCfgBitMap+0x31d:
+      fffff802`60ca807d 498b4610        mov     rax,qword ptr [r14+10h]
+      fffff802`60ca8081 8910            mov     dword ptr [rax],edx
+      fffff802`60ca8083 e939feffff      jmp     nt!MiCopyToCfgBitMap+0x161 (fffff802`60ca7ec1)
+
+nt!MiCopyToCfgBitMap+0x328:
+      fffff802`60ca8088 8bfb            mov     edi,ebx
+      fffff802`60ca808a 85c0            test    eax,eax
+      fffff802`60ca808c 0f85ecfdffff    jne     nt!MiCopyToCfgBitMap+0x11e (fffff802`60ca7e7e)
+
+nt!MiCopyToCfgBitMap+0x332:
+      fffff802`60ca8092 4c896d40        mov     qword ptr [rbp+40h],r13
+      fffff802`60ca8096 8d04dd00000000  lea     eax,[rbx*8]
+      fffff802`60ca809d 894538          mov     dword ptr [rbp+38h],eax
+      fffff802`60ca80a0 488d4d38        lea     rcx,[rbp+38h]
+      fffff802`60ca80a4 e8c709b3ff      call    nt!RtlClearAllBits (fffff802`607d8a70)
+      fffff802`60ca80a9 8bcb            mov     ecx,ebx
+      fffff802`60ca80ab d1e9            shr     ecx,1
+      fffff802`60ca80ad c1e107          shl     ecx,7
+      fffff802`60ca80b0 4103cf          add     ecx,r15d
+      fffff802`60ca80b3 894d04          mov     dword ptr [rbp+4],ecx
+      fffff802`60ca80b6 418b0424        mov     eax,dword ptr [r12]
+      fffff802`60ca80ba 85c0            test    eax,eax
+      fffff802`60ca80bc 752a            jne     nt!MiCopyToCfgBitMap+0x388 (fffff802`60ca80e8)
+
+nt!MiCopyToCfgBitMap+0x35e:
+      fffff802`60ca80be 4d8d442404      lea     r8,[r12+4]
+      fffff802`60ca80c3 498d542408      lea     rdx,[r12+8]
+      fffff802`60ca80c8 498bce          mov     rcx,r14
+      fffff802`60ca80cb e884cffbff      call    nt!RtlEnumRvaListFirst (fffff802`60c65054)
+      fffff802`60ca80d0 41890424        mov     dword ptr [r12],eax
+      fffff802`60ca80d4 eb07            jmp     nt!MiCopyToCfgBitMap+0x37d (fffff802`60ca80dd)
+
+nt!MiCopyToCfgBitMap+0x376:
+ 2011 fffff802`60ca80d6 893e            mov     dword ptr [rsi],edi
+
+nt!MiCopyToCfgBitMap+0x378:
+    9 fffff802`60ca80d8 418b442408      mov     eax,dword ptr [r12+8]
+
+nt!MiCopyToCfgBitMap+0x37d:
+   42 fffff802`60ca80dd 8b4d04          mov     ecx,dword ptr [rbp+4]
+   27 fffff802`60ca80e0 85c0            test    eax,eax
+      fffff802`60ca80e2 0f842f010000    je      nt!MiCopyToCfgBitMap+0x4b7 (fffff802`60ca8217)
+
+nt!MiCopyToCfgBitMap+0x388:
+ 2033 fffff802`60ca80e8 413bc7          cmp     eax,r15d
+      fffff802`60ca80eb 0f83c6000000    jae     nt!MiCopyToCfgBitMap+0x457 (fffff802`60ca81b7)
+
+nt!MiCopyToCfgBitMap+0x391:
+    2 fffff802`60ca80f1 498d742404      lea     rsi,[r12+4]
+   39 fffff802`60ca80f6 41ff44240c      inc     dword ptr [r12+0Ch]
+ 2119 fffff802`60ca80fb 458b5c240c      mov     r11d,dword ptr [r12+0Ch]
+  338 fffff802`60ca8100 4d8b4e18        mov     r9,qword ptr [r14+18h]
+   26 fffff802`60ca8104 458b542408      mov     r10d,dword ptr [r12+8]
+ 1831 fffff802`60ca8109 418b442410      mov     eax,dword ptr [r12+10h]
+    2 fffff802`60ca810e 4d8b4610        mov     r8,qword ptr [r14+10h]
+  180 fffff802`60ca8112 4c03c0          add     r8,rax
+   31 fffff802`60ca8115 4c2bc8          sub     r9,rax
+      fffff802`60ca8118 0f8407010000    je      nt!MiCopyToCfgBitMap+0x4c5 (fffff802`60ca8225)
+
+nt!MiCopyToCfgBitMap+0x3be:
+ 1839 fffff802`60ca811e 488d3d7b8ed6ff  lea     rdi,[nt!RtlpRvaCompressionTableScales (fffff802`60a10fa0)]
+
+nt!MiCopyToCfgBitMap+0x3c5:
+    2 fffff802`60ca8125 4d85c9          test    r9,r9
+      fffff802`60ca8128 0f8421f61900    je      nt!MiCopyToCfgBitMap+0x19f9ef (fffff802`60e4774f)
+
+nt!MiCopyToCfgBitMap+0x3ce:
+  205 fffff802`60ca812e 410fb600        movzx   eax,byte ptr [r8]
+  407 fffff802`60ca8132 49ffc0          inc     r8
+ 1771 fffff802`60ca8135 49ffc9          dec     r9
+    1 fffff802`60ca8138 8bc8            mov     ecx,eax
+  212 fffff802`60ca813a 8bd0            mov     edx,eax
+   84 fffff802`60ca813c c1ea06          shr     edx,6
+ 3657 fffff802`60ca813f 83e13f          and     ecx,3Fh
+   13 fffff802`60ca8142 8b0497          mov     eax,dword ptr [rdi+rdx*4]
+ 4092 fffff802`60ca8145 0fafc1          imul    eax,ecx
+ 6111 fffff802`60ca8148 4403d0          add     r10d,eax
+ 2163 fffff802`60ca814b 83fa03          cmp     edx,3
+      fffff802`60ca814e 75d5            jne     nt!MiCopyToCfgBitMap+0x3c5 (fffff802`60ca8125)
+
+nt!MiCopyToCfgBitMap+0x3f0:
+      fffff802`60ca8150 4589542408      mov     dword ptr [r12+8],r10d
+ 4128 fffff802`60ca8155 452b4610        sub     r8d,dword ptr [r14+10h]
+   13 fffff802`60ca8159 4589442410      mov     dword ptr [r12+10h],r8d
+   47 fffff802`60ca815e 4885f6          test    rsi,rsi
+      fffff802`60ca8161 0f8471ffffff    je      nt!MiCopyToCfgBitMap+0x378 (fffff802`60ca80d8)
+
+nt!MiCopyToCfgBitMap+0x407:
+      fffff802`60ca8167 33ff            xor     edi,edi
+ 2051 fffff802`60ca8169 458b4608        mov     r8d,dword ptr [r14+8]
+   11 fffff802`60ca816d 4183f801        cmp     r8d,1
+      fffff802`60ca8171 0f8686000000    jbe     nt!MiCopyToCfgBitMap+0x49d (fffff802`60ca81fd)
+
+nt!MiCopyToCfgBitMap+0x417:
+   35 fffff802`60ca8177 458bd0          mov     r10d,r8d
+      fffff802`60ca817a 450fafd3        imul    r10d,r11d
+ 2026 fffff802`60ca817e 33c9            xor     ecx,ecx
+    6 fffff802`60ca8180 4585c0          test    r8d,r8d
+      fffff802`60ca8183 0f844dffffff    je      nt!MiCopyToCfgBitMap+0x376 (fffff802`60ca80d6)
+
+nt!MiCopyToCfgBitMap+0x429:
+   40 fffff802`60ca8189 4d8b4e28        mov     r9,qword ptr [r14+28h]
+
+nt!MiCopyToCfgBitMap+0x42d:
+   22 fffff802`60ca818d 428d1411        lea     edx,[rcx+r10]
+ 2104 fffff802`60ca8191 490fa311        bt      qword ptr [r9],rdx
+10784 fffff802`60ca8195 7314            jae     nt!MiCopyToCfgBitMap+0x44b (fffff802`60ca81ab)
+
+nt!MiCopyToCfgBitMap+0x437:
+   43 fffff802`60ca8197 498b5630        mov     rdx,qword ptr [r14+30h]
+ 1988 fffff802`60ca819b 4885d2          test    rdx,rdx
+      fffff802`60ca819e 0f8493f51900    je      nt!MiCopyToCfgBitMap+0x19f9d7 (fffff802`60e47737)
+
+nt!MiCopyToCfgBitMap+0x444:
+   20 fffff802`60ca81a4 448b1c8a        mov     r11d,dword ptr [rdx+rcx*4]
+
+nt!MiCopyToCfgBitMap+0x448:
+   36 fffff802`60ca81a8 410bfb          or      edi,r11d
+
+nt!MiCopyToCfgBitMap+0x44b:
+   89 fffff802`60ca81ab ffc1            inc     ecx
+ 1973 fffff802`60ca81ad 413bc8          cmp     ecx,r8d
+      fffff802`60ca81b0 72db            jb      nt!MiCopyToCfgBitMap+0x42d (fffff802`60ca818d)
+
+nt!MiCopyToCfgBitMap+0x452:
+   30 fffff802`60ca81b2 e91fffffff      jmp     nt!MiCopyToCfgBitMap+0x376 (fffff802`60ca80d6)
+
+nt!MiCopyToCfgBitMap+0x457:
+    2 fffff802`60ca81b7 3bc1            cmp     eax,ecx
+      fffff802`60ca81b9 735c            jae     nt!MiCopyToCfgBitMap+0x4b7 (fffff802`60ca8217)
+
+nt!MiCopyToCfgBitMap+0x45b:
+      fffff802`60ca81bb 418b542404      mov     edx,dword ptr [r12+4]
+    2 fffff802`60ca81c0 f6c201          test    dl,1
+      fffff802`60ca81c3 0f8428ffffff    je      nt!MiCopyToCfgBitMap+0x391 (fffff802`60ca80f1)
+
+nt!MiCopyToCfgBitMap+0x469:
+    7 fffff802`60ca81c9 8bc8            mov     ecx,eax
+      fffff802`60ca81cb 412bcf          sub     ecx,r15d
+    1 fffff802`60ca81ce c1e904          shr     ecx,4
+    2 fffff802`60ca81d1 a80f            test    al,0Fh
+      fffff802`60ca81d3 7579            jne     nt!MiCopyToCfgBitMap+0x4ee (fffff802`60ca824e)
+
+nt!MiCopyToCfgBitMap+0x475:
+   13 fffff802`60ca81d5 03c9            add     ecx,ecx
+      fffff802`60ca81d7 8d4101          lea     eax,[rcx+1]
+    3 fffff802`60ca81da f6c204          test    dl,4
+      fffff802`60ca81dd 750f            jne     nt!MiCopyToCfgBitMap+0x48e (fffff802`60ca81ee)
+
+nt!MiCopyToCfgBitMap+0x47f:
+    1 fffff802`60ca81df 410fab4d00      bts     dword ptr [r13],ecx
+   72 fffff802`60ca81e4 410fb34500      btr     dword ptr [r13],eax
+   87 fffff802`60ca81e9 e903ffffff      jmp     nt!MiCopyToCfgBitMap+0x391 (fffff802`60ca80f1)
+
+nt!MiCopyToCfgBitMap+0x48e:
+      fffff802`60ca81ee 410fb34d00      btr     dword ptr [r13],ecx
+      fffff802`60ca81f3 410fab4500      bts     dword ptr [r13],eax
+      fffff802`60ca81f8 e9f4feffff      jmp     nt!MiCopyToCfgBitMap+0x391 (fffff802`60ca80f1)
+
+nt!MiCopyToCfgBitMap+0x49d:
+      fffff802`60ca81fd 0f85d3feffff    jne     nt!MiCopyToCfgBitMap+0x376 (fffff802`60ca80d6)
+
+nt!MiCopyToCfgBitMap+0x4a3:
+      fffff802`60ca8203 498b4630        mov     rax,qword ptr [r14+30h]
+      fffff802`60ca8207 4885c0          test    rax,rax
+      fffff802`60ca820a 0f8435f51900    je      nt!MiCopyToCfgBitMap+0x19f9e5 (fffff802`60e47745)
+
+nt!MiCopyToCfgBitMap+0x4b0:
+      fffff802`60ca8210 8b38            mov     edi,dword ptr [rax]
+      fffff802`60ca8212 e9bffeffff      jmp     nt!MiCopyToCfgBitMap+0x376 (fffff802`60ca80d6)
+
+nt!MiCopyToCfgBitMap+0x4b7:
+      fffff802`60ca8217 448bf9          mov     r15d,ecx
+      fffff802`60ca821a 41890424        mov     dword ptr [r12],eax
+      fffff802`60ca821e 8bfb            mov     edi,ebx
+      fffff802`60ca8220 e9f4fdffff      jmp     nt!MiCopyToCfgBitMap+0x2b9 (fffff802`60ca8019)
+
+nt!MiCopyToCfgBitMap+0x4c5:
+      fffff802`60ca8225 33c0            xor     eax,eax
+      fffff802`60ca8227 e9b1feffff      jmp     nt!MiCopyToCfgBitMap+0x37d (fffff802`60ca80dd)
+
+nt!MiCopyToCfgBitMap+0x4cc:
+      fffff802`60ca822c 03d2            add     edx,edx
+      fffff802`60ca822e 41b802000000    mov     r8d,2
+      fffff802`60ca8234 488d4d38        lea     rcx,[rbp+38h]
+      fffff802`60ca8238 e81300b4ff      call    nt!RtlClearBits (fffff802`607e8250)
+      fffff802`60ca823d e931feffff      jmp     nt!MiCopyToCfgBitMap+0x313 (fffff802`60ca8073)
+
+nt!MiCopyToCfgBitMap+0x4e2:
+      fffff802`60ca8242 4c8b2d9f9ce4ff  mov     r13,qword ptr [nt!MiState+0x23a8 (fffff802`60af1ee8)]
+      fffff802`60ca8249 e9e4fdffff      jmp     nt!MiCopyToCfgBitMap+0x2d2 (fffff802`60ca8032)
+
+nt!MiCopyToCfgBitMap+0x4ee:
+      fffff802`60ca824e 8d1409          lea     edx,[rcx+rcx]
+      fffff802`60ca8251 41b802000000    mov     r8d,2
+      fffff802`60ca8257 488d4d38        lea     rcx,[rbp+38h]
+      fffff802`60ca825b e880ababff      call    nt!RtlSetBits (fffff802`60762de0)
+      fffff802`60ca8260 e98cfeffff      jmp     nt!MiCopyToCfgBitMap+0x391 (fffff802`60ca80f1)
+
+nt!MiCopyToCfgBitMap+0x19f992:
+      fffff802`60e476f2 41ba00010000    mov     r10d,100h
+      fffff802`60e476f8 4c895548        mov     qword ptr [rbp+48h],r10
+      fffff802`60e476fc 8b0424          mov     eax,dword ptr [rsp]
+      fffff802`60e476ff 492be2          sub     rsp,r10
+      fffff802`60e47702 4c8d6c2430      lea     r13,[rsp+30h]
+      fffff802`60e47707 418b4500        mov     eax,dword ptr [r13]
+      fffff802`60e4770b e92209e6ff      jmp     nt!MiCopyToCfgBitMap+0x2d2 (fffff802`60ca8032)
+
+nt!MiCopyToCfgBitMap+0x19f9b0:
+      fffff802`60e47710 4c03d9          add     r11,rcx
+      fffff802`60e47713 4c895d08        mov     qword ptr [rbp+8],r11
+      fffff802`60e47717 4803f0          add     rsi,rax
+      fffff802`60e4771a 48897518        mov     qword ptr [rbp+18h],rsi
+      fffff802`60e4771e 4c2bc8          sub     r9,rax
+      fffff802`60e47721 4c898dd0000000  mov     qword ptr [rbp+0D0h],r9
+      fffff802`60e47728 e98108e6ff      jmp     nt!MiCopyToCfgBitMap+0x24e (fffff802`60ca7fae)
+
+nt!MiCopyToCfgBitMap+0x19f9cd:
+      fffff802`60e4772d 418bfa          mov     edi,r10d
+      fffff802`60e47730 2bf9            sub     edi,ecx
+      fffff802`60e47732 e98f08e6ff      jmp     nt!MiCopyToCfgBitMap+0x266 (fffff802`60ca7fc6)
+
+nt!MiCopyToCfgBitMap+0x19f9d7:
+      fffff802`60e47737 41bb01000000    mov     r11d,1
+      fffff802`60e4773d 41d3e3          shl     r11d,cl
+      fffff802`60e47740 e9630ae6ff      jmp     nt!MiCopyToCfgBitMap+0x448 (fffff802`60ca81a8)
+
+nt!MiCopyToCfgBitMap+0x19f9e5:
+      fffff802`60e47745 bf01000000      mov     edi,1
+      fffff802`60e4774a e98709e6ff      jmp     nt!MiCopyToCfgBitMap+0x376 (fffff802`60ca80d6)
+
+nt!MiCopyToCfgBitMap+0x19f9ef:
+      fffff802`60e4774f 418bc2          mov     eax,r10d
+      fffff802`60e47752 4889442420      mov     qword ptr [rsp+20h],rax
+      fffff802`60e47757 4d8d4c2408      lea     r9,[r12+8]
+      fffff802`60e4775c 4d8bc6          mov     r8,r14
+      fffff802`60e4775f ba20676643      mov     edx,43666720h
+      fffff802`60e47764 b91a000000      mov     ecx,1Ah
+      fffff802`60e47769 e8c21fa2ff      call    nt!KeBugCheckEx (fffff802`60869730)
+      fffff802`60e4776e cc              int     3
+
+nt!MiCopyToCfgBitMap+0x19fa0f:
+      fffff802`60e4776f 488b7d28        mov     rdi,qword ptr [rbp+28h]
+      fffff802`60e47773 e97207e6ff      jmp     nt!MiCopyToCfgBitMap+0x18a (fffff802`60ca7eea)
+
+nt!MiCopyToCfgBitMap+0x19fa18:
+      fffff802`60e47778 493bf7          cmp     rsi,r15
+      fffff802`60e4777b 0f84ba07e6ff    je      nt!MiCopyToCfgBitMap+0x1db (fffff802`60ca7f3b)
+
+nt!MiCopyToCfgBitMap+0x19fa21:
+      fffff802`60e47781 81fb060000c0    cmp     ebx,0C0000006h
+      fffff802`60e47787 0f84ae07e6ff    je      nt!MiCopyToCfgBitMap+0x1db (fffff802`60ca7f3b)
+
+nt!MiCopyToCfgBitMap+0x19fa2d:
+      fffff802`60e4778d 498bc7          mov     rax,r15
+      fffff802`60e47790 482500f0ffff    and     rax,0FFFFFFFFFFFFF000h
+      fffff802`60e47796 488bfe          mov     rdi,rsi
+      fffff802`60e47799 482bf8          sub     rdi,rax
+      fffff802`60e4779c 48c1ef0c        shr     rdi,0Ch
+      fffff802`60e477a0 e96907e6ff      jmp     nt!MiCopyToCfgBitMap+0x1ae (fffff802`60ca7f0e)

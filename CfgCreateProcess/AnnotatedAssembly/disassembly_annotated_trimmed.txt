@@ -1,0 +1,32 @@
+0: kd> uf nt!MiCopyToCfgBitmap
+nt!MiCopyToCfgBitMap:
+...
+nt!MiCopyToCfgBitMap+0x3ce:
+  205 fffff802`60ca812e  movzx   eax,byte ptr [r8]
+  407 fffff802`60ca8132  inc     r8
+ 1771 fffff802`60ca8135  dec     r9
+    1 fffff802`60ca8138  mov     ecx,eax
+  212 fffff802`60ca813a  mov     edx,eax
+   84 fffff802`60ca813c  shr     edx,6
+ 3657 fffff802`60ca813f  and     ecx,3Fh
+   13 fffff802`60ca8142  mov     eax,dword ptr [rdi+rdx*4]
+ 4092 fffff802`60ca8145  imul    eax,ecx
+ 6111 fffff802`60ca8148  add     r10d,eax
+ 2163 fffff802`60ca814b  cmp     edx,3
+      fffff802`60ca814e  jne     nt!MiCopyToCfgBitMap+0x3c5 (fffff802`60ca8125)
+...
+nt!MiCopyToCfgBitMap+0x42d:
+   22 fffff802`60ca818d  lea     edx,[rcx+r10]
+ 2104 fffff802`60ca8191  bt      qword ptr [r9],rdx
+10784 fffff802`60ca8195  jae     nt!MiCopyToCfgBitMap+0x44b (fffff802`60ca81ab)
+
+nt!MiCopyToCfgBitMap+0x437:
+   43 fffff802`60ca8197  mov     rdx,qword ptr [r14+30h]
+ 1988 fffff802`60ca819b  test    rdx,rdx
+      fffff802`60ca819e  je      nt!MiCopyToCfgBitMap+0x19f9d7 (fffff802`60e47737)
+...
+nt!MiCopyToCfgBitMap+0x44b:
+   89 fffff802`60ca81ab  inc     ecx
+ 1973 fffff802`60ca81ad  cmp     ecx,r8d
+      fffff802`60ca81b0  jb      nt!MiCopyToCfgBitMap+0x42d (fffff802`60ca818d)
+...
