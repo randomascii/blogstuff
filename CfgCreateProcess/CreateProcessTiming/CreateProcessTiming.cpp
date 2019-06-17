@@ -14,10 +14,15 @@ int main(int argc, char* argv[])
   PROCESS_INFORMATION process_info = {};
   LARGE_INTEGER start;
   QueryPerformanceCounter(&start);
-  CreateProcessA(name, nullptr, nullptr, nullptr, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &startup_info, &process_info);
+  BOOL result = CreateProcessA(name, nullptr, nullptr, nullptr, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &startup_info, &process_info);
   LARGE_INTEGER end;
   QueryPerformanceCounter(&end);
   TerminateProcess(process_info.hProcess, 0);
+
+  if (!result) {
+    printf("CreateProcess failed.\n");
+    return 0;
+  }
 
   LARGE_INTEGER frequency;
   QueryPerformanceFrequency(&frequency);
