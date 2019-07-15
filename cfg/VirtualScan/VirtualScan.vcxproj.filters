@@ -27,4 +27,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="VirtualScan.manifest" />
+  </ItemGroup>
 </Project>
