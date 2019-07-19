@@ -4,8 +4,8 @@
 int main(int argc, char* argv[])
 {
   if (argc < 2) {
-    printf("Times calls to CreateProcess, without actually running the child process.");
-    printf("Usage: %s proc_name.exe", argv[0]);
+    printf("Times calls to CreateProcess, without actually running the child process.\n");
+    printf("Usage: %s proc_name.exe\n", argv[0]);
     return 0;
   }
 
