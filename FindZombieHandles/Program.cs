@@ -88,6 +88,14 @@ namespace FindZombieHandles
                 return "zombies";
         }
 
+        static string OrphanPluralized(int count)
+        {
+            if (count == 1)
+                return "orphan";
+            else
+                return "orphans";
+        }
+
         static void Main(string[] args)
         {
             bool verbose = false;
@@ -100,7 +108,17 @@ namespace FindZombieHandles
                     Console.WriteLine("WARNING: Can't enable debug privilege. Some zombies may not be found. Run as admin for full results.");
                 }
                 var zombies = GetZombieProcessObjectAddress();
-                Console.WriteLine("{0} total zombie processes.", zombies.Count);
+
+                var flattenList = zombies.Values.ToList();
+                var q = from x in flattenList
+                        group x by x into g
+                        let count = g.Count()
+                        orderby count descending
+                        select new { Value = g.Key, Count = count };
+
+                Dictionary<string, int> orphaned = q.ToDictionary(x => x.Value, x => x.Count);
+                Console.Write("{0} total zombie processes.", zombies.Count);
+
                 if (zombies.Count == 0)
                     Console.WriteLine("No zombies found. Maybe all software is working correctly, but I doubt it. " +
                                       "More likely the zombie counting process failed for some reason. Please try again.");
@@ -121,6 +139,16 @@ namespace FindZombieHandles
                 // Print the processes holding handles to zombies, sorted by zombie count.
                 count_and_pid.Sort();
                 count_and_pid.Reverse();
+
+                int total_count_zombies = 0;
+
+                foreach (Tuple<int, int, HandleList> buggy_process in count_and_pid)
+                {
+                    total_count_zombies += buggy_process.Item1;
+                }
+                int total_count_orphans = zombies.Count - total_count_zombies;
+                Console.WriteLine(" ({0} {1} and {2} {3})", total_count_zombies, ZombiePluralized(total_count_zombies), total_count_orphans, OrphanPluralized(total_count_orphans));
+
                 foreach (Tuple<int, int, HandleList> buggy_process in count_and_pid)
                 {
                     int count_by = buggy_process.Item1;
@@ -136,6 +164,10 @@ namespace FindZombieHandles
                             slash_index = -1;
                         string process_name = name.Key.Substring(slash_index + 1);
                         zombies_from_process.Add(new Tuple<int, string>(name.Count(), process_name));
+                        if (orphaned.ContainsKey(name.Key))
+                        {
+                            orphaned[name.Key] = orphaned[name.Key] - name.Count();
+                        }
                     }
 
                     // Print the processes being held as zombies, sorted by count.
@@ -147,6 +179,17 @@ namespace FindZombieHandles
                         string process_name = zombie_process.Item2;
                         Console.WriteLine("        {0} {1} of {2}", count_of, ZombiePluralized(count_of), process_name);
                     }
+                }
+
+                Console.WriteLine("    {0} {1}", total_count_orphans, OrphanPluralized(total_count_orphans));
+                foreach (var item in orphaned)
+                {
+                    int slash_index = item.Key.LastIndexOf('\\');
+                    if (verbose)
+                        slash_index = -1;
+                    string process_name = item.Key.Substring(slash_index + 1);
+                    if (item.Value != 0)
+                        Console.WriteLine("        {0} {1} of {2}", item.Value, OrphanPluralized(item.Value), process_name);
                 }
                 if (!verbose)
                     Console.WriteLine("Pass -verbose to get full zombie names.");
