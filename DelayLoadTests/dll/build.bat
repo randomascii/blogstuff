@@ -1,0 +1,1 @@
+cl dll.cpp /LD
