@@ -59,7 +59,11 @@
     <script src="d3.v2.min.js"></script>
     <script src="saveSvgAsPng.js"></script>
     <script>
-        function show(file, by_source_lines, index, graph_heading, frame_number) {
+        var g_index = -1;
+        function show(file, by_source_lines, graph_heading) {
+            g_index += 1;
+            var index = g_index;
+
             // Add new divs for the graph and the labels above it.
             var mouseover_div = document.createElement("div");
             mouseover_div.id = "label" + index;
@@ -212,7 +216,7 @@
 
                 if (save_video_frames) {
                     // Save the frames of the video.
-                    saveSvgAsPng(container[0][0], "diagram" + frame_number + ".png", { backgroundColor: "white" });
+                    saveSvgAsPng(container[0][0], "diagram" + index + ".png", { backgroundColor: "white" });
                 }
             });
         }
@@ -224,8 +228,8 @@
 
         if (save_video_frames) {
             for (var i = 0; i < 45; i++) {
-                //show('anim-frame' + i + '.csv', false, 1, 'Precompiled header reduction benefits', i);
-                show('anim-frame' + i + '.csv', false, 1, 'Mojo empty-file optimization benefits', i);
+                //show('anim-frame' + i + '.csv', false, i, 'Precompiled header reduction benefits');
+                show('anim-frame' + i + '.csv', false, 'Mojo empty-file optimization benefits');
             }
         }
         else {
@@ -233,21 +237,21 @@
             // how many commits have been made. In this case it represents a commit from Oct 29,
             // 2020. See this line in each Chromium commit message:
             // Cr-Commit-Position: refs/heads/master@{#710480}
-            show('R710480-default.csv', true, 1, 'Compile times versus source-file line count');
-            show('R710480-default.csv', false, 2, 'Compile times versus line-count of dependencies');
-            show('R710480-pchfix.csv', false, 3, 'Compile times with PCH reduction');
+            show('R710480-default.csv', true, 'Compile times versus source-file line count');
+            show('R710480-default.csv', false, 'Compile times versus line-count of dependencies');
+            show('R710480-pchfix.csv', false, 'Compile times with PCH reduction');
             // R710480-default-blink.csv is generated from R710480-default.csv with this command:
             // python3 ..\count_costs.py R710480-default.csv ..\..\third_party\blink* --verbose >R710480-default-blink-only.csv
-            show('R710480-default-blink-only.csv', false, 4, 'Compile times, blink only');
+            show('R710480-default-blink-only.csv', false, 'Compile times, blink only');
             // Ditto for R710480-pchfix-blink.csv
-            show('R710480-pchfix-blink-only.csv', false, 5, 'Compile times with PCH reduction, blink only');
+            show('R710480-pchfix-blink-only.csv', false, 'Compile times with PCH reduction, blink only');
 
             // R748711 indicates another Chromium revision number, in this case from March 10, 2020.
             // These files were generated from the results of test_new_build.bat using these commands:
             // python ..\count_costs.py R748711-default.csv gen\*mojo*.cc --verbose > R748711-default-mojogen-only.csv
             // python ..\count_costs.py R748711-mojogen.csv gen\*mojo*.cc --verbose > R748711-optimized-mojogen-only.csv
-            show('R748711-default-mojogen-only.csv', false, 6, 'March 2020 default build, gen\*mojo* only');
-            show('R748711-optimized-mojogen-only.csv', false, 7, 'March 2020 with mojo fix, gen\*mojo* only - many dots at the origin...')
+            show('R748711-default-mojogen-only.csv', false, 'March 2020 default build, gen\*mojo* only');
+            show('R748711-optimized-mojogen-only.csv', false, 'March 2020 with mojo fix, gen\*mojo* only - many dots at the origin...')
         }
     </script>
 </body>
