@@ -228,14 +228,18 @@
             }
         }
         else {
-            show('windows-default.csv', true, 1, 'Compile times versus source-file line count');
-            show('windows-default.csv', false, 2, 'Compile times versus line-count of dependencies');
-            show('windows-pchfix.csv', false, 3, 'Compile times with PCH reduction');
-            // windows-default-blink.csv is generated from windows-default.csv with this command:
-            // python3 ..\count_costs.py windows-default.csv ..\..\third_party\blink* --verbose >windows-default-blink-only.csv
-            show('windows-default-blink-only.csv', false, 4, 'Compile times, blink only');
-            // Ditto for windows-pchfix-blink.csv
-            show('windows-pchfix-blink-only.csv', false, 5, 'Compile times with PCH reduction, blink only');
+            // R710480 indicates a Chromium revision number, a monotonically increasing count of
+            // how many commits have been made. In this case it represents a commit from Oct 29,
+            // 2020. See this line in each Chromium commit message:
+            // Cr-Commit-Position: refs/heads/master@{#710480}
+            show('R710480-default.csv', true, 1, 'Compile times versus source-file line count');
+            show('R710480-default.csv', false, 2, 'Compile times versus line-count of dependencies');
+            show('R710480-pchfix.csv', false, 3, 'Compile times with PCH reduction');
+            // R710480-default-blink.csv is generated from R710480-default.csv with this command:
+            // python3 ..\count_costs.py R710480-default.csv ..\..\third_party\blink* --verbose >R710480-default-blink-only.csv
+            show('R710480-default-blink-only.csv', false, 4, 'Compile times, blink only');
+            // Ditto for R710480-pchfix-blink.csv
+            show('R710480-pchfix-blink-only.csv', false, 5, 'Compile times with PCH reduction, blink only');
         }
     </script>
 </body>
