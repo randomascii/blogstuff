@@ -224,7 +224,8 @@
 
         if (save_video_frames) {
             for (var i = 0; i < 45; i++) {
-                show('anim-frame' + i + '.csv', false, 1, 'Precompiled header reduction benefits', i);
+                //show('anim-frame' + i + '.csv', false, 1, 'Precompiled header reduction benefits', i);
+                show('anim-frame' + i + '.csv', false, 1, 'Mojo empty-file optimization benefits', i);
             }
         }
         else {
@@ -240,6 +241,13 @@
             show('R710480-default-blink-only.csv', false, 4, 'Compile times, blink only');
             // Ditto for R710480-pchfix-blink.csv
             show('R710480-pchfix-blink-only.csv', false, 5, 'Compile times with PCH reduction, blink only');
+
+            // R748711 indicates another Chromium revision number, in this case from March 10, 2020.
+            // These files were generated from the results of test_new_build.bat using these commands:
+            // python ..\count_costs.py R748711-default.csv gen\*mojo*.cc --verbose > R748711-default-mojogen-only.csv
+            // python ..\count_costs.py R748711-mojogen.csv gen\*mojo*.cc --verbose > R748711-optimized-mojogen-only.csv
+            show('R748711-default-mojogen-only.csv', false, 6, 'March 2020 default build, gen\*mojo* only');
+            show('R748711-optimized-mojogen-only.csv', false, 7, 'March 2020 with mojo fix, gen\*mojo* only - many dots at the origin...')
         }
     </script>
 </body>

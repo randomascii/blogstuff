@@ -11,24 +11,30 @@ checked using asserts.
 
 from __future__ import print_function
 
+import argparse
 import math
 import sys
 
 
 def main():
-  with open('windows-default-blink.csv', 'r') as f:
-    default = f.readlines()
-  with open('windows-pchfix-blink.csv', 'r') as f:
-    pch_fix = f.readlines()
+  parser = argparse.ArgumentParser()
+  parser.add_argument('start_file', nargs=1)
+  parser.add_argument('end_file', nargs=1)
+  parser.add_argument('--num_frames', type=int, default=45)
 
-  num_frames = 45
+  args = parser.parse_args()
+
+  with open(args.start_file[0], 'r') as f:
+    default = f.readlines()
+  with open(args.end_file[0], 'r') as f:
+    pch_fix = f.readlines()
 
   assert(len(default) == len(pch_fix))
 
-  for i in range(num_frames):
+  for i in range(args.num_frames):
     # Use math.cos to create t values that do smooth acceleration and deceleration
     # to avoid jarring jerks in the animation.
-    theta = i * math.pi / (num_frames - 1)
+    theta = i * math.pi / (args.num_frames - 1)
     t = (math.cos(theta) + 1) / 2
 
     with open('anim-frame%d.csv' % i, 'w+') as f:
