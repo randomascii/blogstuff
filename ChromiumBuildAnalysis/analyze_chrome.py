@@ -143,6 +143,7 @@ def main():
 
   print('Generating .csv file.', file=sys.stderr)
   print('name,t_ms,num_dependent_lines,num_lines,num_deps')
+  missing_count = 0
   for line in command_lines:
     if line.count('clang-cl.exe') > 0:
       parts = line.split(' ')
@@ -156,7 +157,17 @@ def main():
       for dep in active_deps:
         dep_line_count = GetLineCount(line_counts, dep)
         total_dep_line_count += dep_line_count
-      print('%s,%d,%d,%d,%d' % (source_name, int(durations[obj_name] * 1000), total_dep_line_count, line_count, len(active_deps)))
+      if obj_name in durations:
+        print('%s,%d,%d,%d,%d' % (source_name, int(durations[obj_name] * 1000), total_dep_line_count, line_count, len(active_deps)))
+      else:
+        missing_count += 1
+        if missing_count < 5:
+          print('Missing durations for %s' % obj_name, file=sys.stderr)
+        elif missing_count == 5:
+          print('...', file=sys.stderr)
+  if missing_count > 0:
+    print('%d durations were missing. Did you do a full build of Chrome?' % missing_count, file=sys.stderr)
+    print('You must do a clean build, or modify the ReadTargets call to pass True for show_all.', file=sys.stderr)
 
 
 if __name__ == '__main__':
