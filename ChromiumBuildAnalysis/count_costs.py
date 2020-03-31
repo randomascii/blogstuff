@@ -37,25 +37,31 @@ def main():
     lines = f.readlines()
 
   count = 0
-  t_ms = 0
-  num_dependent_lines = 0
-  num_lines = 0
+  sum_t_ms = 0
+  sum_num_dependent_lines = 0
+  sum_num_lines = 0
 
   headers = 'name,t_ms,num_dependent_lines,num_lines,num_deps'
   assert(lines[0].strip() == headers)
   if args.verbose:
     print(lines[0].strip())
+  times_s = []
   for line in lines[1:]:
     parts = line.split(',')
     if fnmatch.fnmatch(parts[0], args.wildcard):
       count += 1
-      t_ms += int(parts[1])
-      num_dependent_lines += int(parts[2])
-      num_lines += int(parts[3])
+      t_ms = int(parts[1])
+      times_s.append(t_ms / 1000.0)
+      sum_t_ms += t_ms
+      sum_num_dependent_lines += int(parts[2])
+      sum_num_lines += int(parts[3])
       if args.verbose:
         print(line.strip())
 
-  print('%d files took %1.3f hrs to build. %1.3f M lines, %1.1f M dependent lines' % (count, t_ms / 1000.0 / 3600, num_lines / 1000000.0, num_dependent_lines / 1000000.0), file=sys.stderr)
+  print('%d files took %1.3f hrs to build. %1.3f M lines, %1.1f M dependent lines' % (count, sum_t_ms / 1000.0 / 3600, sum_num_lines / 1000000.0, sum_num_dependent_lines / 1000000.0), file=sys.stderr)
+  print('Averages: %d lines, %1.2f seconds, %1.1f K dependent lines per file compiled' %(sum_num_lines / count, sum_t_ms / 1000.0 / count, sum_num_dependent_lines / 1000.0 / count))
+  times_s.sort()
+  print('min: %1.1f, 50%%ile: %1.1f, 90%%ile: %1.1f, 99%%ile: %1.1f, max: %1.1f (seconds)' % (times_s[0], times_s[len(times_s) * 50 / 100], times_s[len(times_s) * 90 / 100], times_s[len(times_s) * 99 / 100], times_s[-1]))
 
 
 if __name__ == '__main__':
