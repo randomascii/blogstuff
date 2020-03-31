@@ -239,7 +239,7 @@
             // Cr-Commit-Position: refs/heads/master@{#710480}
             show('R710480-default.csv', true, 'Compile times versus source-file line count');
             show('R710480-default.csv', false, 'Compile times versus line-count of dependencies');
-            show('R710480-pchfix.csv', false, 'Compile times with PCH reduction');
+            show('R710480-pchfix.csv', false, 'Compile times with blink PCH reduction');
             // R710480-default-blink.csv is generated from R710480-default.csv with this command:
             // python3 ..\count_costs.py R710480-default.csv ..\..\third_party\blink* --verbose >R710480-default-blink-only.csv
             show('R710480-default-blink-only.csv', false, 'Compile times, blink only');
