@@ -22,6 +22,8 @@ nothing else that sets the timer interrupt interval is running.
 */
 
 #include <Windows.h>
+
+#include <inttypes.h>
 #include <stdio.h>
 
 #pragma comment(lib, "winmm.lib")
@@ -41,6 +43,18 @@ ULONG GetTimerResolution() {
   return current;
 }
 
+int64_t HighPrecisionTime() {
+  LARGE_INTEGER time;
+  QueryPerformanceCounter(&time);
+  return time.QuadPart;
+}
+
+double HighPrecisionFrequency() {
+  LARGE_INTEGER frequency;
+  QueryPerformanceFrequency(&frequency);
+  return frequency.QuadPart;
+}
+
 DWORD TimeGetTimeResolution() {
   const DWORD time_start = timeGetTime();
   // Wait for timeGetTime to return a different value.
@@ -58,15 +72,15 @@ void SleepTest(bool tabbed) {
   // Measure the behavior of Sleep(1)
   DWORD start = timeGetTime();
   // Lots of space to store the wakeup times.
-  DWORD times[2000];
-  times[0] = start;
+  int64_t times_precise[2000];
+  times_precise[0] = HighPrecisionTime();
   int iterations = 0;
   // Wait for one second to have elapsed.
   constexpr DWORD kLoopLength = 1000;
   while (timeGetTime() - start < kLoopLength) {
     Sleep(1);
     ++iterations;
-    times[iterations] = timeGetTime();
+    times_precise[iterations] = HighPrecisionTime();
   }
   ULONG resolution_end = GetTimerResolution();
   // Only report results if the timer resolution hasn't changed during the
@@ -80,17 +94,19 @@ void SleepTest(bool tabbed) {
              "resolution is %2u. Delay from Sleep(1) is ~%4.1f ms.\n",
              resolution_start / 1e4, time_get_time_resolution,
              double(kLoopLength) / iterations);
-    int interval_counts[16] = {};
+    int interval_counts_precise[16] = {};
     for (int i = 0; i < iterations; ++i) {
-      DWORD elapsed = times[i+1] - times[i];
-      if (elapsed >= _countof(interval_counts))
-        elapsed = _countof(interval_counts) - 1;
-      ++interval_counts[elapsed];
+      DWORD elapsed = static_cast<DWORD>(
+          0.5 + 1e3 * (times_precise[i + 1] - times_precise[i]) /
+                    HighPrecisionFrequency());
+      if (elapsed >= _countof(interval_counts_precise))
+        elapsed = _countof(interval_counts_precise) - 1;
+      ++interval_counts_precise[elapsed];
     }
     printf("Delay\tCount\tTable of Sleep(1) length occurrences.\n");
-    for (int i = 0; i < _countof(interval_counts); ++i)
-      if (interval_counts[i])
-        printf("%2d\t%2d\n", i, interval_counts[i]);
+    for (int i = 0; i < _countof(interval_counts_precise); ++i)
+      if (interval_counts_precise[i])
+        printf("%2d\t%2d\n", i, interval_counts_precise[i]);
   }
 }
 
