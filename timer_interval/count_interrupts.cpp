@@ -40,7 +40,7 @@ ULONG GetTimerResolution() {
 }
 
 void CountInterrupts() {
-  ULONG resolution_start = GetTimerResolution();
+  const ULONG resolution_start = GetTimerResolution();
 
   const DWORD start = timeGetTime();
   DWORD last = start;
@@ -49,7 +49,7 @@ void CountInterrupts() {
   times[0] = start;
   int count = 0;
   for (;;) {
-    DWORD current = timeGetTime();
+    const DWORD current = timeGetTime();
     if (current != last) {
       ++count;
       times[count] = timeGetTime();
@@ -58,7 +58,7 @@ void CountInterrupts() {
     if (current - start >= 1000)
       break;
   }
-  ULONG resolution_end = GetTimerResolution();
+  const ULONG resolution_end = GetTimerResolution();
   // Only report results if the timer resolution hasn't changed during the
   // measurement.
   if (resolution_start == resolution_end) {

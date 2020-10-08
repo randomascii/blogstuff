@@ -64,13 +64,13 @@ DWORD TimeGetTimeResolution() {
 }
 
 void SleepTest(bool tabbed) {
-  ULONG resolution_start = GetTimerResolution();
+  const ULONG resolution_start = GetTimerResolution();
 
   // Measure the resolution of timeGetTime()
-  DWORD time_get_time_resolution = TimeGetTimeResolution();
+  const DWORD time_get_time_resolution = TimeGetTimeResolution();
 
   // Measure the behavior of Sleep(1)
-  DWORD start = timeGetTime();
+  const DWORD start = timeGetTime();
   // Lots of space to store the wakeup times.
   DWORD times[2000];
   times[0] = start;
@@ -85,7 +85,7 @@ void SleepTest(bool tabbed) {
     times[iterations] = timeGetTime();
     times_precise[iterations] = HighPrecisionTime();
   }
-  ULONG resolution_end = GetTimerResolution();
+  const ULONG resolution_end = GetTimerResolution();
   // Only report results if the timer resolution hasn't changed during the
   // measurement.
   if (resolution_start == resolution_end) {
