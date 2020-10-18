@@ -15,13 +15,6 @@ limitations under the License.
 */
 
 /*
-This program monitors the effects of the current global timer interrupt
-interval as set by timeBeginPeriod. For most interesting results run this
-program while change_interval.exe is running in another window, and when
-nothing else that sets the timer interrupt interval is running.
-*/
-
-/*
   This program tests whether Windows commits private or shared zero pages when
   reading from a fresh page. Linux apparently commits a shared zero page which
   is then replaced with a private page when it is written to.

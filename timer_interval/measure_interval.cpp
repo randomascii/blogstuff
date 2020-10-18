@@ -27,12 +27,13 @@ nothing else that sets the timer interrupt interval is running.
 #include <stdio.h>
 
 #pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "ntdll.lib")
 
 NTSYSAPI NTSTATUS NTAPI NtQueryTimerResolution(PULONG MinimumResolution,
                                                PULONG MaximumResolution,
                                                PULONG CurrentResolution);
 
+// Returns the current timer resolution in 100 ns units (10,000 implies
+// a one ms timer interval).
 ULONG GetTimerResolution() {
   static HMODULE ntdll = LoadLibrary("ntdll.dll");
   static auto QueryTimerResolution =
