@@ -35,6 +35,7 @@ using NtApiDotNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 using HandleList = System.Collections.Generic.IEnumerable<NtApiDotNet.NtHandle>;
@@ -56,6 +57,12 @@ namespace FindZombieHandles
 
         static string GetProcessName(int process_id, bool verbose)
         {
+            var image_path = NtSystemInfo.GetProcessIdImagePath(process_id, false);
+            if (image_path.IsSuccess)
+            {
+                return verbose ? image_path.Result : Path.GetFileName(image_path.Result);
+            }
+
             using (var process = NtProcess.Open(process_id, ProcessAccessRights.QueryLimitedInformation, false))
             {
                 if (process.IsSuccess)
