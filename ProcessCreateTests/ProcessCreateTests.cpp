@@ -7,9 +7,9 @@
 #include <algorithm>
 
 // Number of child processes that the first process should create.
-constexpr int num_children = 40;
+constexpr int num_children = 1000;
 // Number of grand-child process that each child process should create.
-constexpr int num_grand_children = 24;
+constexpr int num_grand_children = 1;
 // Total number of descendants of the first process.
 constexpr int num_descendants = num_children * num_grand_children + num_children;
 
@@ -31,7 +31,7 @@ void Spawn(const char* parameter, std::vector<HANDLE>& proc_handles)
 	if (result)
 	{
 		proc_handles.push_back(processInfo.hProcess);
-		CloseHandle(processInfo.hThread);
+		//CloseHandle(processInfo.hThread);
 	}
 	else
 	{
@@ -209,6 +209,9 @@ int main(int argc, char* argv[])
 			// Start up the monitoring thread again.
 			h_thread = CreateThread(nullptr, 0, LockChecker, stop_checker, 0, nullptr);
 			printf("\nProcess termination starts now.\n");
+
+			printf("Waiting...\n");
+			Sleep(1000000);
 
 			auto death_start = GetAccurateTime();
 			// Tell all of the children to terminate.
