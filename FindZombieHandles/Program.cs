@@ -73,7 +73,7 @@ namespace FindZombieHandles
             {
                 new ZombieHandle(process, process_path)
             };
-            using (var query_process = process.Duplicate(ProcessAccessRights.QueryInformation, false))
+            using (var query_process = NtProcess.Open(pid, ProcessAccessRights.QueryInformation, false))
             {
                 if (query_process.IsSuccess)
                 {
