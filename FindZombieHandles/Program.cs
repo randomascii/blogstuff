@@ -35,6 +35,7 @@ using NtApiDotNet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 using HandleList = System.Collections.Generic.IEnumerable<NtApiDotNet.NtHandle>;
@@ -43,12 +44,63 @@ namespace FindZombieHandles
 {
     class Program
     {
+        private sealed class ZombieHandle : IDisposable
+        {
+            private readonly NtObject _object;
+
+            public int Handle { get; }
+            public string ProcessPath { get; }
+
+            public ZombieHandle(NtObject obj, string process_path)
+            {
+                _object = obj;
+                Handle = obj.Handle.DangerousGetHandle().ToInt32();
+                ProcessPath = process_path;
+            }
+
+            public void Dispose()
+            {
+                ((IDisposable)_object).Dispose();
+            }
+        }
+
+        static IEnumerable<ZombieHandle> GetThreads(NtProcess process)
+        {
+            string process_path = process.FullPath;
+            int pid = process.ProcessId;
+
+            List<ZombieHandle> objs = new List<ZombieHandle>
+            {
+                new ZombieHandle(process, process_path)
+            };
+            using (var query_process = NtProcess.Open(pid, ProcessAccessRights.QueryInformation, false))
+            {
+                if (query_process.IsSuccess)
+                {
+                    objs.AddRange(query_process.Result.GetThreads(ThreadAccessRights.QueryLimitedInformation)
+                        .Select(t => new ZombieHandle(t, process_path)));
+                }
+            }
+            return objs;
+        }
+
+        static bool FilterProcess(NtProcess process)
+        {
+            if (process.IsDeleting)
+            {
+                return true;
+            }
+            process.Close();
+            return false;
+        }
+
         static Dictionary<ulong, string> GetZombieProcessObjectAddress()
         {
-            using (var ps = NtProcess.GetProcesses(ProcessAccessRights.QueryLimitedInformation).ToDisposableList())
+            using (var ps = NtProcess.GetProcesses(ProcessAccessRights.QueryLimitedInformation).Where(FilterProcess).SelectMany(GetThreads).ToDisposableList())
             {
-                var handles = ps.Where(p => p.IsDeleting).ToDictionary(p => p.Handle.DangerousGetHandle().ToInt32(), p => p.FullPath);
-                var zombies = NtSystemInfo.GetHandles(NtProcess.Current.ProcessId, false).Where(h => handles.ContainsKey(h.Handle)).ToDictionary(h => h.Object, h => handles[h.Handle]);
+                var handles = ps.ToDictionary(p => p.Handle);
+                var zombies = NtSystemInfo.GetHandles(NtProcess.Current.ProcessId, false).Where(h => handles.ContainsKey(h.Handle))
+                    .ToDictionary(h => h.Object, h => handles[h.Handle].ProcessPath);
                 Debug.Assert(handles.Count == zombies.Count);
                 return zombies;
             }
@@ -56,6 +108,12 @@ namespace FindZombieHandles
 
         static string GetProcessName(int process_id, bool verbose)
         {
+            var image_path = NtSystemInfo.GetProcessIdImagePath(process_id, false);
+            if (image_path.IsSuccess)
+            {
+                return verbose ? image_path.Result : Path.GetFileName(image_path.Result);
+            }
+
             using (var process = NtProcess.Open(process_id, ProcessAccessRights.QueryLimitedInformation, false))
             {
                 if (process.IsSuccess)
@@ -128,14 +186,16 @@ namespace FindZombieHandles
                     HandleList total = buggy_process.Item3;
                     Console.WriteLine("    {0} {1} held by {2}({3})", count_by, ZombiePluralized(count_by), GetProcessName(pid, verbose), pid);
                     var names = total.GroupBy(h => zombies[h.Object], StringComparer.CurrentCultureIgnoreCase);
-                    List<Tuple<int, string>> zombies_from_process = new List<Tuple<int, string>>();
+                    List<Tuple<int, string, int, int>> zombies_from_process = new List<Tuple<int, string, int, int>>();
                     foreach (var name in names)
                     {
                         int slash_index = name.Key.LastIndexOf('\\');
                         if (verbose)
                             slash_index = -1;
                         string process_name = name.Key.Substring(slash_index + 1);
-                        zombies_from_process.Add(new Tuple<int, string>(name.Count(), process_name));
+                        int process_count = name.Count(h => h.ObjectType == "Process");
+                        int thread_count = name.Count(h => h.ObjectType == "Thread");
+                        zombies_from_process.Add(Tuple.Create(process_count + thread_count, process_name, process_count, thread_count));
                     }
 
                     // Print the processes being held as zombies, sorted by count.
@@ -143,9 +203,13 @@ namespace FindZombieHandles
                     zombies_from_process.Reverse();
                     foreach (var zombie_process in zombies_from_process)
                     {
-                        int count_of = zombie_process.Item1;
+                        int total_count = zombie_process.Item1;
                         string process_name = zombie_process.Item2;
-                        Console.WriteLine("        {0} {1} of {2}", count_of, ZombiePluralized(count_of), process_name);
+                        int process_count = zombie_process.Item3;
+                        int thread_count = zombie_process.Item4;
+                        
+                        Console.WriteLine("        {0} {1} of {2} (process: {3} - thread: {4})", total_count, 
+                            ZombiePluralized(total_count), process_name, process_count, thread_count);
                     }
                 }
                 if (!verbose)
