@@ -50,12 +50,14 @@ namespace FindZombieHandles
 
             public int Handle { get; }
             public string ProcessPath { get; }
+            public bool IsThread { get; }
 
             public ZombieHandle(NtObject obj, string process_path)
             {
                 _object = obj;
                 Handle = obj.Handle.DangerousGetHandle().ToInt32();
                 ProcessPath = process_path;
+                IsThread = obj is NtThread;
             }
 
             public void Dispose()
@@ -94,13 +96,13 @@ namespace FindZombieHandles
             return false;
         }
 
-        static Dictionary<ulong, string> GetZombieProcessObjectAddress()
+        static Dictionary<ulong, ZombieHandle> GetZombieObjectAddress()
         {
             using (var ps = NtProcess.GetProcesses(ProcessAccessRights.QueryLimitedInformation).Where(FilterProcess).SelectMany(GetThreads).ToDisposableList())
             {
                 var handles = ps.ToDictionary(p => p.Handle);
                 var zombies = NtSystemInfo.GetHandles(NtProcess.Current.ProcessId, false).Where(h => handles.ContainsKey(h.Handle))
-                    .ToDictionary(h => h.Object, h => handles[h.Handle].ProcessPath);
+                    .ToDictionary(h => h.Object, h => handles[h.Handle]);
                 Debug.Assert(handles.Count == zombies.Count);
                 return zombies;
             }
@@ -141,9 +143,9 @@ namespace FindZombieHandles
         static string ZombiePluralized(int count)
         {
             if (count == 1)
-                return "zombie";
+                return "zombie handle";
             else
-                return "zombies";
+                return "zombie handles";
         }
 
         static void Main(string[] args)
@@ -157,8 +159,9 @@ namespace FindZombieHandles
                 {
                     Console.WriteLine("WARNING: Can't enable debug privilege. Some zombies may not be found. Run as admin for full results.");
                 }
-                var zombies = GetZombieProcessObjectAddress();
-                Console.WriteLine("{0} total zombie processes.", zombies.Count);
+                var zombies = GetZombieObjectAddress();
+                Console.WriteLine("{0} total zombie processes.", zombies.Values.Count(h => !h.IsThread));
+                Console.WriteLine("{0} total zombie threads.", zombies.Values.Count(h => h.IsThread));
                 if (zombies.Count == 0)
                     Console.WriteLine("No zombies found. Maybe all software is working correctly, but I doubt it. " +
                                       "More likely the zombie counting process failed for some reason. Please try again.");
@@ -185,7 +188,7 @@ namespace FindZombieHandles
                     int pid = buggy_process.Item2;
                     HandleList total = buggy_process.Item3;
                     Console.WriteLine("    {0} {1} held by {2}({3})", count_by, ZombiePluralized(count_by), GetProcessName(pid, verbose), pid);
-                    var names = total.GroupBy(h => zombies[h.Object], StringComparer.CurrentCultureIgnoreCase);
+                    var names = total.GroupBy(h => zombies[h.Object].ProcessPath, StringComparer.CurrentCultureIgnoreCase);
                     List<Tuple<int, string, int, int>> zombies_from_process = new List<Tuple<int, string, int, int>>();
                     foreach (var name in names)
                     {
