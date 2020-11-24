@@ -38,8 +38,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-using HandleList = System.Collections.Generic.IEnumerable<NtApiDotNet.NtHandle>;
-
 namespace FindZombieHandles
 {
     class Program
@@ -51,13 +49,15 @@ namespace FindZombieHandles
             public int Handle { get; }
             public string ProcessPath { get; }
             public bool IsThread { get; }
+            public int ProcessId { get; }
 
-            public ZombieHandle(NtObject obj, string process_path)
+            public ZombieHandle(NtObject obj, string process_path, int process_id, bool is_thread)
             {
                 _object = obj;
                 Handle = obj.Handle.DangerousGetHandle().ToInt32();
                 ProcessPath = process_path;
-                IsThread = obj is NtThread;
+                IsThread = is_thread;
+                ProcessId = process_id;
             }
 
             public void Dispose()
@@ -73,14 +73,14 @@ namespace FindZombieHandles
 
             List<ZombieHandle> objs = new List<ZombieHandle>
             {
-                new ZombieHandle(process, process_path)
+                new ZombieHandle(process, process_path, pid, false)
             };
             using (var query_process = NtProcess.Open(pid, ProcessAccessRights.QueryInformation, false))
             {
                 if (query_process.IsSuccess)
                 {
                     objs.AddRange(query_process.Result.GetThreads(ThreadAccessRights.QueryLimitedInformation)
-                        .Select(t => new ZombieHandle(t, process_path)));
+                        .Select(t => new ZombieHandle(t, process_path, pid, true)));
                 }
             }
             return objs;
@@ -143,9 +143,9 @@ namespace FindZombieHandles
         static string ZombiePluralized(int count)
         {
             if (count == 1)
-                return "zombie handle";
+                return "zombie";
             else
-                return "zombie handles";
+                return "zombies";
         }
 
         static void Main(string[] args)
@@ -167,38 +167,39 @@ namespace FindZombieHandles
                                       "More likely the zombie counting process failed for some reason. Please try again.");
                 // Create a list to store the pids of process that hold zombies, a list of zombie handles,
                 // a count of the zombies. The count is first for sorting.
-                List<Tuple<int, int, HandleList>> count_and_pid = new List<Tuple<int, int, HandleList>>();
+                List<Tuple<int, int, List<ZombieHandle>>> count_and_pid = new List<Tuple<int, int, List<ZombieHandle>>>();
                 foreach (var group in NtSystemInfo.GetHandles(-1, false).GroupBy(h => h.ProcessId))
                 {
-                    var total = group.Where(h => zombies.ContainsKey(h.Object));
-                    int count = total.Count();
+                    var total = group.Where(h => zombies.ContainsKey(h.Object)).Select(h => zombies[h.Object]).ToList();
+                    int count = total.Select(h => h.ProcessId).Distinct().Count();
 
                     if (count > 0)
                     {
-                        count_and_pid.Add(new Tuple<int, int, HandleList>(count, group.Key, total));
+                        count_and_pid.Add(Tuple.Create(count, group.Key, total));
                     }
                 }
 
                 // Print the processes holding handles to zombies, sorted by zombie count.
                 count_and_pid.Sort();
                 count_and_pid.Reverse();
-                foreach (Tuple<int, int, HandleList> buggy_process in count_and_pid)
+                foreach (var buggy_process in count_and_pid)
                 {
                     int count_by = buggy_process.Item1;
                     int pid = buggy_process.Item2;
-                    HandleList total = buggy_process.Item3;
+                    var total = buggy_process.Item3;
                     Console.WriteLine("    {0} {1} held by {2}({3})", count_by, ZombiePluralized(count_by), GetProcessName(pid, verbose), pid);
-                    var names = total.GroupBy(h => zombies[h.Object].ProcessPath, StringComparer.CurrentCultureIgnoreCase);
-                    List<Tuple<int, string, int, int>> zombies_from_process = new List<Tuple<int, string, int, int>>();
+                    var names = total.GroupBy(h => h.ProcessPath, StringComparer.CurrentCultureIgnoreCase);
+                    var zombies_from_process = new List<Tuple<int, string, int, int>>();
                     foreach (var name in names)
                     {
                         int slash_index = name.Key.LastIndexOf('\\');
                         if (verbose)
                             slash_index = -1;
                         string process_name = name.Key.Substring(slash_index + 1);
-                        int process_count = name.Count(h => h.ObjectType == "Process");
-                        int thread_count = name.Count(h => h.ObjectType == "Thread");
-                        zombies_from_process.Add(Tuple.Create(process_count + thread_count, process_name, process_count, thread_count));
+                        int process_count = name.Count(h => !h.IsThread);
+                        int thread_count = name.Count(h => h.IsThread);
+                        int unique_process = name.Select(h => h.ProcessId).Distinct().Count();
+                        zombies_from_process.Add(Tuple.Create(unique_process, process_name, process_count, thread_count));
                     }
 
                     // Print the processes being held as zombies, sorted by count.
@@ -210,8 +211,8 @@ namespace FindZombieHandles
                         string process_name = zombie_process.Item2;
                         int process_count = zombie_process.Item3;
                         int thread_count = zombie_process.Item4;
-                        
-                        Console.WriteLine("        {0} {1} of {2} (process: {3} - thread: {4})", total_count, 
+
+                        Console.WriteLine("        {0} {1} of {2} - process handle count: {3} - thread handle count: {4}", total_count, 
                             ZombiePluralized(total_count), process_name, process_count, thread_count);
                     }
                 }
