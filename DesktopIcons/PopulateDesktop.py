@@ -19,6 +19,8 @@ https://github.com/microsoft/WinDev/issues/80
 """
 
 import os
+# pip3 install psutil may be needed to make this available.
+import psutil
 import shutil
 import sys
 
@@ -27,25 +29,35 @@ USE_PYTHON_3 = f'This script will only run under python3.'
 
 def main():
   if len(sys.argv) < 2:
-    print('  Usage: %s filecount' % __file__)
+    print('  Usage: %s file_count' % __file__)
     print('Copies the requested number of pictures to the desktop. This is')
     print('useful for reproducing poor scaling of icon layout')
     return 0
 
-  filecount = int(sys.argv[1])
-  if filecount > 1000:
+  file_count = int(sys.argv[1])
+  if file_count > 1000:
     print('%d pictures is a lot. A thousand is more than enough to reproduce'
-          % filecount)
+          % file_count)
     print('the bug. Edit the script to remove the limitation if you\'re really')
     print('sure.')
     return 0
 
-  src = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                     'SunsetWhales.jpg')
-  dst = os.path.join(os.environ['userprofile'], 'Desktop', 'SunsetWhales%04d.jpg')
-  print('Copying %d files from %s to %s.' % (filecount, src, dst))
-  for i in range(filecount):
+  for proc in psutil.process_iter():
+      if proc.name() == 'explorer.exe':
+          explorer_pid = proc.pid
+
+  script_path = os.path.dirname(os.path.realpath(__file__))
+  desktop_path = os.path.join(os.environ['userprofile'], 'Desktop')
+  src = os.path.join(script_path, 'SunsetWhales.jpg')
+  dst = os.path.join(desktop_path, 'TestFiles%04d.jpg')
+  print('Copying %d files from %s to %s.' % (file_count, src, dst))
+  explorer = p = psutil.Process(explorer_pid)
+  # Suspend the explorer process so that it processes all of the new images at
+  # once.
+  explorer.suspend()
+  for i in range(file_count):
     shutil.copy(src, dst % i)
+  explorer.resume()
   print()
   print('Don\'t forget to clean up the files when you\'re done with them with')
   print('"del %s" or similar.' % dst.replace('%04d', '*'))
