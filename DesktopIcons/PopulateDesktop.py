@@ -20,9 +20,15 @@ https://github.com/microsoft/WinDev/issues/80
 
 import os
 # pip3 install psutil may be needed to make this available.
-import psutil
 import shutil
 import sys
+
+try:
+  import psutil
+  psutil_loaded = True
+except:
+  psutil_loaded = False
+  print('psutil not found. Results will be less consistent.')
 
 # Check for Python3 - this is a syntax error under Python 2.
 USE_PYTHON_3 = f'This script will only run under python3.'
@@ -42,22 +48,24 @@ def main():
     print('sure.')
     return 0
 
-  for proc in psutil.process_iter():
-      if proc.name() == 'explorer.exe':
-          explorer_pid = proc.pid
-
   script_path = os.path.dirname(os.path.realpath(__file__))
   desktop_path = os.path.join(os.environ['userprofile'], 'Desktop')
   src = os.path.join(script_path, 'SunsetWhales.jpg')
   dst = os.path.join(desktop_path, 'TestFiles%04d.jpg')
   print('Copying %d files from %s to %s.' % (file_count, src, dst))
-  explorer = p = psutil.Process(explorer_pid)
-  # Suspend the explorer process so that it processes all of the new images at
-  # once.
-  explorer.suspend()
+
+  if psutil_loaded:
+    for proc in psutil.process_iter():
+        if proc.name() == 'explorer.exe':
+            explorer_pid = proc.pid
+    explorer = p = psutil.Process(explorer_pid)
+    # Suspend the explorer process so that it processes all of the new images at
+    # once.
+    explorer.suspend()
   for i in range(file_count):
     shutil.copy(src, dst % i)
-  explorer.resume()
+  if psutil_loaded:
+    explorer.resume()
   print()
   print('Don\'t forget to clean up the files when you\'re done with them with')
   print('"del %s" or similar.' % dst.replace('%04d', '*'))
