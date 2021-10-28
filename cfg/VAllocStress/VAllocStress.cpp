@@ -131,6 +131,12 @@ CFGData GetCFGData(const void* hint, DWORD max_ms)
 
 int main(int argc, char* argv[])
 {
+#ifdef _DEBUG
+	printf("This test is only valid in release builds where CFG is enabled. Exiting.\n");
+	// Bogus check in order to avoid unreachable code warnings.
+	if (argc > 0)
+		return 0;
+#endif
 	// Print the PID so that we can easily scan this process using VirtualScan.exe or vmmap
 	printf("pid is %lu. Scan with \"vmmap -p VAllocStress.exe\" or \"VirtualScan VAllocStress.exe\".\n", GetCurrentProcessId());
 
