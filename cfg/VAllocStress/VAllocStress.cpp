@@ -267,6 +267,33 @@ int main(int argc, char* argv[])
 	else
 		printf("Ended with %zu committed CFG blocks (%.1f MiB).\n", cfg_data.count, cfg_data.bytes / double(one_mb));
 
+	printf("Seeing if DLLs leak CFG entries.\n");
+	for (int i = 0; i < 100; ++i)
+	{
+		HMODULE extra_dll = LoadLibrary(L"msvcrt.dll");
+		if (!extra_dll)
+		{
+			printf("Failed to load msvcrt.dll. Exiting DLL leak loop.\n");
+			break;
+		}
+		if (!FreeLibrary(extra_dll))
+		{
+			printf("Failed to FreeLibrary. Exiting DLL leak loop.\n");
+		}
+		if (!VirtualAlloc(extra_dll, one_mb, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE))
+		{
+			printf("Failed to allocate memory. Exiting DLL leak loop.\n");
+			break;
+		}
+	}
+
+	cfg_data = GetCFGData(cfg_data.cfg_reservation, 2000);
+	if (cfg_data.timeout)
+		printf("Ended with %zu committed CFG blocks (%.1f MiB) found before scanning timed out after %1.3f s.\n",
+			cfg_data.count, cfg_data.bytes / double(one_mb), cfg_data.timeout / 1000.0);
+	else
+		printf("Ended with %zu committed CFG blocks (%.1f MiB).\n", cfg_data.count, cfg_data.bytes / double(one_mb));
+
 	printf("Finished initialization. Sitting in VirtualAlloc loop. Type Ctrl+C to exit.\n\n");
 
 	// Sit in a loop where we sleep for a bit and then allocate a block of
