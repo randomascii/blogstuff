@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 				maxPromisedMHz = std::max(maxPromisedMHz, processorInfo[i].CurrentMhz);
 			}
 		}
-		printf("CurrentMHz is %lu (for CPU 0 is %lu, MaxMhz is %lu)\n", maxPromisedMHz, processorInfo[0].CurrentMhz, processorInfo[0].MaxMhz);
+		printf("CurrentMHz is %4lu (for CPU 0 is %4lu, MaxMhz is %4lu)\n", maxPromisedMHz, processorInfo[0].CurrentMhz, processorInfo[0].MaxMhz);
 		Sleep(1000);
 	}
 }
