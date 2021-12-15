@@ -13,6 +13,7 @@
 *.VC.db
 symsrv.yes
 *.lastcodeanalysissucceeded
+vs-chromium-project.txt
 
 # VS 2015 drops these
 *.VC.opendb
