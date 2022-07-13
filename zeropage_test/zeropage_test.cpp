@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// See this blog post for details:
+// https://randomascii.wordpress.com/2022/07/11/slower-memory-zeroing-through-parallelism/
+
 #include <Windows.h>
 
 constexpr int kNumChildProcesses = 1;
