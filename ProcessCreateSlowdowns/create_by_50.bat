@@ -62,5 +62,5 @@ SET starttime=%time%
 %executable% >nul
 %executable% >nul
 set /A count = %count% + 50
-call python subtract_time.py %time% %starttime% for 10 invocations of %executable% (%count% total, at %time%)
+call python subtract_time.py %time% %starttime% for 50 invocations of %executable% (%count% total, at %time%)
 goto start
