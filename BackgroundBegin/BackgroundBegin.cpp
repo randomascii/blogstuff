@@ -39,54 +39,50 @@ int main(int argc, char* argv[])
 	// get more accurate timing information.
 	timeBeginPeriod(1);
 
-	// Super-spiffy argument parsing.
-	bool background = false;
-	bool empty = false;
-	for (int arg = 1; arg < argc; ++arg)
-	{
-		if (stricmp(argv[arg], "background") == 0)
-			background = true;
-		if (stricmp(argv[arg], "empty") == 0)
-			empty = true;
-	}
-
 	char* p = new char[kAmount];
-	// Make sure the memory is in the working set.
-	memset(p, 1, kAmount);
 
-	// Optionally put the process in background mode.
-	if (background)
+	double last_rate = 0;
+	for (int pass = 0; pass < 20; ++pass)
 	{
-		printf("Background mode.\n");
-		SetPriorityClass(GetCurrentProcess(), PROCESS_MODE_BACKGROUND_BEGIN);
-	}
-	const char* suffix = "";
-	if (empty)
-	{
-		suffix = " Emptying working set before each iteration.";
-	}
+		// Make sure the memory starts in the working set.
+		memset(p, 1, kAmount);
 
-	const DWORD start = timeGetTime();
-	DWORD elapsed;
-	int iterations = 0;
-	// Loop for about 1,000 ms.
-	while (true)
-	{
-		elapsed = timeGetTime() - start;
-		if (elapsed > 1000)
-			break;
-		++iterations;
-		if (empty)
-			EmptyWorkingSet(GetCurrentProcess());
-		// Scan through the memory touching each page once. This will force each page
-		// to be faulted into the working set in turn. If the pages are already in the
-		// working set then this is cheap. If they are not then this requires a
-		// significant amount of work in the kernel. When
-		// PROCESS_MODE_BACKGROUND_BEGIN is engaged it will also cause the working set
-		// to be trimmed, thus adding to the cost and ensuring that pages will need to
-		// be repeatedly paged back in.
-		for (size_t offset = 0; offset < kAmount; offset += 4096)
-			p[offset] = 2;
+		const bool background = (pass & 1) != 0;
+		// Optionally put the process in background mode.
+		if (background)
+			SetPriorityClass(GetCurrentProcess(), PROCESS_MODE_BACKGROUND_BEGIN);
+
+		const DWORD start = timeGetTime();
+		DWORD elapsed;
+		int iterations = 0;
+		// Loop for about 1,000 ms, counting how many iterations can be done.
+		while (true)
+		{
+			elapsed = timeGetTime() - start;
+			if (elapsed > 1000)
+				break;
+			++iterations;
+
+			// Scan through the memory touching each page once. This will force each page
+			// to be faulted into the working set in turn. If the pages are already in the
+			// working set then this is cheap. If they are not then this requires a
+			// significant amount of work in the kernel. When
+			// PROCESS_MODE_BACKGROUND_BEGIN is engaged it will also cause the working set
+			// to be trimmed, thus adding to the cost and ensuring that pages will need to
+			// be repeatedly paged back in.
+			for (size_t offset = 0; offset < kAmount; offset += 4096)
+				p[offset] = 2;
+		}
+
+		// Exit background mode if needed.
+		if (background)
+			SetPriorityClass(GetCurrentProcess(), PROCESS_MODE_BACKGROUND_END);
+
+		double rate = iterations / double(elapsed);
+		if (background)
+			printf("%u ticks to scan memory %d times in background mode. %1.1f times as long.\n", elapsed, iterations, last_rate / rate);
+		else
+			printf("%u ticks to scan memory %d times in normal mode.\n", elapsed, iterations);
+		last_rate = rate;
 	}
-	printf("%u ticks to scan memory %d times.%s\n", elapsed, iterations, suffix);
 }
