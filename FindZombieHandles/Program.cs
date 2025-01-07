@@ -29,6 +29,9 @@ of thousands of handles.
 
 Blog post is here:
 https://randomascii.wordpress.com/2018/02/11/zombie-processes-are-eating-your-memory/
+
+A follow-up blog post on handle leaks in drivers is here:
+https://yngve.vivaldi.net/amd-you-infected-my-pc-with-zombies/
 */
 
 using NtApiDotNet;
@@ -160,8 +163,10 @@ namespace FindZombieHandles
                     Console.WriteLine("WARNING: Can't enable debug privilege. Some zombies may not be found. Run as admin for full results.");
                 }
                 var zombies = GetZombieObjectAddress();
-                Console.WriteLine("{0} total zombie processes.", zombies.Values.Count(h => !h.IsThread));
-                Console.WriteLine("{0} total zombie threads.", zombies.Values.Count(h => h.IsThread));
+                var zombie_process_count = zombies.Values.Count(h => !h.IsThread);
+                var zombie_thread_count = zombies.Values.Count(h => h.IsThread);
+                Console.WriteLine("{0} total zombie processes.", zombie_process_count);
+                Console.WriteLine("{0} total zombie threads.", zombie_thread_count);
                 if (zombies.Count == 0)
                     Console.WriteLine("No zombies found. Maybe all software is working correctly, but I doubt it. " +
                                       "More likely the zombie counting process failed for some reason. Please try again.");
@@ -182,6 +187,8 @@ namespace FindZombieHandles
                 // Print the processes holding handles to zombies, sorted by zombie count.
                 count_and_pid.Sort();
                 count_and_pid.Reverse();
+                var zombie_processes_accounted_for = 0;
+                var zombie_threads_accounted_for = 0;
                 foreach (var buggy_process in count_and_pid)
                 {
                     int count_by = buggy_process.Item1;
@@ -210,12 +217,29 @@ namespace FindZombieHandles
                         int total_count = zombie_process.Item1;
                         string process_name = zombie_process.Item2;
                         int process_count = zombie_process.Item3;
+                        // It is possible for a process to hold multiple process (or thread) handles
+                        // to a single process. Applying Math.Min means that we don't overcount how
+                        // many zombies are accounted for. It's not technically correct math but
+                        // works perfectly in most scenarios.
+                        zombie_processes_accounted_for += Math.Min(process_count, total_count);
                         int thread_count = zombie_process.Item4;
+                        zombie_threads_accounted_for += Math.Min(thread_count, total_count);
 
                         Console.WriteLine("        {0} {1} of {2} - process handle count: {3} - thread handle count: {4}", total_count, 
                             ZombiePluralized(total_count), process_name, process_count, thread_count);
                     }
                 }
+                if ((zombie_processes_accounted_for < zombie_process_count / 2 && zombie_processes_accounted_for < zombie_process_count - 100) ||
+                    (zombie_threads_accounted_for < zombie_thread_count / 2 && zombie_threads_accounted_for < zombie_thread_count - 100))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("{0} of {1} process zombies accounted for.", zombie_processes_accounted_for, zombie_process_count);
+                    Console.WriteLine("{0} of {1} thread zombies accounted for.", zombie_threads_accounted_for, zombie_thread_count);
+                    Console.WriteLine("This suggests a thread or process handle leak in a driver, rather than a process.");
+                    Console.WriteLine("See this for more details on handle leaks in drivers: https://yngve.vivaldi.net/amd-you-infected-my-pc-with-zombies/");
+                }
+                Console.WriteLine();
+                Console.WriteLine("See this for more details on handle leaks in processes: https://randomascii.wordpress.com/2018/02/11/zombie-processes-are-eating-your-memory/");
                 if (!verbose)
                     Console.WriteLine("Pass -verbose to get full zombie names.");
             }
