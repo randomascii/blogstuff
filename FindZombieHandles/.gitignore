@@ -1,1 +1,3 @@
 obj/
+!prebuilt/*.exe
+!prebuilt/*.pdb
